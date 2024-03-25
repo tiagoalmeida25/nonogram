@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "968599643577",
+    "project_id": "nonogram-48dd4",
+    "storage_bucket": "nonogram-48dd4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:968599643577:android:0a5680219d31f3e13f8268",
+        "android_client_info": {
+          "package_name": "com.tiagoalmeida.nonogram"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9tPfZ7cJ4v2UUehSjLiuQStVKdneDJT4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
