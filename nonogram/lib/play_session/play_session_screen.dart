@@ -63,7 +63,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
         // by widgets below this one in the widget tree.
         ChangeNotifierProvider(
           create: (context) => LevelState(
-            goal: widget.level.difficulty,
+            goal: widget.level.goal,
             onWin: _playerWon,
           ),
         ),
@@ -84,17 +84,17 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: InkResponse(
-                      onTap: () => GoRouter.of(context).push('/settings'),
-                      child: Image.asset(
-                        'assets/images/settings.png',
-                        semanticLabel: 'Settings',
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
+                  // Align(
+                  //   alignment: Alignment.centerRight,
+                  //   child: InkResponse(
+                  //     onTap: () => GoRouter.of(context).push('/settings'),
+                  //     child: Image.asset(
+                  //       'assets/images/settings.png',
+                  //       semanticLabel: 'Settings',
+                  //     ),
+                  //   ),
+                  // ),
+                  // const Spacer(),
                   Expanded(
                     // The actual UI of the game.
                     child: GameWidget(),

@@ -5,8 +5,30 @@
 const gameLevels = [
   GameLevel(
     number: 1,
-    difficulty: 5,
-    // TODO: When ready, change these achievement IDs.
+    puzzleName: '1',
+    goal: [],
+    width: 5,
+    height: 10,
+
+    columnIndications: [
+      [2, 1],
+      [2, 1, 3],
+      [7],
+      [1, 3],
+      [2, 1],
+    ],
+    rowIndications: [
+      [2],
+      [2, 1],
+      [1, 1],
+      [3],
+      [1, 1],
+      [1, 1],
+      [2],
+      [1, 1],
+      [1, 2],
+      [2],
+    ],
     // You configure this in App Store Connect.
     achievementIdIOS: 'first_win',
     // You get this string when you configure an achievement in Play Console.
@@ -14,11 +36,44 @@ const gameLevels = [
   ),
   GameLevel(
     number: 2,
-    difficulty: 42,
+    goal: [],
+    width: 5,
+    height: 5,
+    columnIndications: [
+      [1, 1],
+      [1, 1],
+      [1, 1],
+      [1, 1],
+      [1, 1],
+    ],
+    rowIndications: [],
+    puzzleName: 'flower',
   ),
   GameLevel(
     number: 3,
-    difficulty: 100,
+    puzzleName: 'house',
+    goal: [],
+    width: 5,
+    height: 10,
+    columnIndications: [
+      [1, 1],
+      [1, 1],
+      [1, 1],
+      [1, 1],
+      [1, 1],
+    ],
+    rowIndications: [
+      [1],
+      [1, 1],
+      [1, 1],
+      [1],
+      [1],
+      [1],
+      [1],
+      [1],
+      [1],
+      [1],
+    ],
     achievementIdIOS: 'finished',
     achievementIdAndroid: 'CdfIhE96aspNWLGSQg',
   ),
@@ -26,8 +81,13 @@ const gameLevels = [
 
 class GameLevel {
   final int number;
-
-  final int difficulty;
+  final String puzzleName;
+  final List<List<int>> goal;
+  final int width;
+  final int height;
+  final String difficulty;
+  final List<List<int>> columnIndications;
+  final List<List<int>> rowIndications;
 
   /// The achievement to unlock when the level is finished, if any.
   final String? achievementIdIOS;
@@ -38,9 +98,15 @@ class GameLevel {
 
   const GameLevel({
     required this.number,
-    required this.difficulty,
+    required this.puzzleName,
+    required this.goal,
+    required this.columnIndications,
+    required this.rowIndications,
+    required this.width,
+    required this.height,
     this.achievementIdIOS,
     this.achievementIdAndroid,
+    this.difficulty = 'easy',
   }) : assert(
             (achievementIdAndroid != null && achievementIdIOS != null) ||
                 (achievementIdAndroid == null && achievementIdIOS == null),

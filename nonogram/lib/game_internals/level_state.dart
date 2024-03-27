@@ -10,22 +10,40 @@ import 'package:flutter/foundation.dart';
 /// the value of [progress] reaches [goal].
 class LevelState extends ChangeNotifier {
   final VoidCallback onWin;
+  List<List<int>> goal;
+  final String marker;
 
-  final int goal;
+  LevelState({required this.onWin, this.goal = const <List<int>>[], this.marker = 'X'});
 
-  LevelState({required this.onWin, this.goal = 100});
+  List<List<String>> _progress = [];
 
-  int _progress = 0;
+  List<List<String>> get progress => _progress;
 
-  int get progress => _progress;
+  void setGoal(List<List<int>> value) {
+    goal.clear();
+    goal = value;
+  }
 
-  void setProgress(int value) {
+  void initProgress(int width, int height) {
+    _progress = List.generate(height, (i) => List.filled(width, ''));
+  }
+
+  void setProgress(List<List<String>> value) {
     _progress = value;
     notifyListeners();
   }
 
   void evaluate() {
-    if (_progress >= goal) {
+    int counter = 0;
+    List<List<int>> userGrid = _progress.map((e) => e.map((e) => e == 'X' ? 1 : 0).toList()).toList();
+
+    for (int i = 0; i < goal.length; i++) {
+      if (listEquals(userGrid[i], goal[i])) {
+        counter++;
+      }
+    }
+
+    if (counter == goal.length) {
       onWin();
     }
   }

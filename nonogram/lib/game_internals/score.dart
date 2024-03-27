@@ -6,15 +6,25 @@
 class Score {
   final int score;
 
+  final int level;
   final Duration duration;
 
-  final int level;
-
-  factory Score(int level, int difficulty, Duration duration) {
+  factory Score(int level, String difficulty, Duration duration) {
     // The higher the difficulty, the higher the score.
-    var score = difficulty;
-    // The lower the time to beat the level, the higher the score.
-    score *= 10000 ~/ (duration.inSeconds.abs() + 1);
+    var score = 0;
+    switch (difficulty) {
+      case 'easy':
+        score += 100;
+        break;
+      case 'medium':
+        score += 500;
+        break;
+      case 'hard':
+        score += 1000;
+        break;
+      default:
+        throw ArgumentError('Unknown difficulty: $difficulty');
+    }
     return Score._(score, duration, level);
   }
 
@@ -34,9 +44,7 @@ class Score {
       buf.write('$minutes');
     }
     buf.write(':');
-    buf.write((duration.inSeconds % Duration.secondsPerMinute)
-        .toString()
-        .padLeft(2, '0'));
+    buf.write((duration.inSeconds % Duration.secondsPerMinute).toString().padLeft(2, '0'));
     return buf.toString();
   }
 
