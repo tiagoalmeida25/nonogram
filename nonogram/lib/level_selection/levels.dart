@@ -1,15 +1,29 @@
-// Copyright 2022, the Flutter project authors. Please see the AUTHORS file
-// for details. All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
+import 'package:nonogram/game_internals/score.dart';
 
-const gameLevels = [
+List<GameLevel> gameLevels = [
   GameLevel(
     number: 1,
     puzzleName: '1',
-    goal: [],
+    goal: [
+      [
+        0,
+        1,
+        1,
+        0,
+        0,
+      ],
+      [0, 1, 1, 0, 1],
+      [0, 0, 1, 0, 1],
+      [0, 1, 1, 1, 0],
+      [1, 0, 1, 0, 0],
+      [1, 0, 1, 0, 0],
+      [0, 0, 1, 1, 0],
+      [0, 1, 0, 1, 0],
+      [0, 1, 0, 1, 1],
+      [1, 1, 0, 0, 0],
+    ],
     width: 5,
     height: 10,
-
     columnIndications: [
       [2, 1],
       [2, 1, 3],
@@ -27,52 +41,93 @@ const gameLevels = [
       [2],
       [1, 1],
       [1, 2],
-      [2],
+      [2]
     ],
-    // You configure this in App Store Connect.
     achievementIdIOS: 'first_win',
-    // You get this string when you configure an achievement in Play Console.
     achievementIdAndroid: 'NhkIwB69ejkMAOOLDb',
   ),
   GameLevel(
     number: 2,
-    goal: [],
-    width: 5,
-    height: 5,
-    columnIndications: [
-      [1, 1],
-      [1, 1],
-      [1, 1],
-      [1, 1],
-      [1, 1],
+    goal: [
+      [1, 1, 1, 0, 0, 0, 0, 1, 1, 0],
+      [1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+      [1, 1, 0, 0, 0, 0, 1, 1, 0, 0],
+      [0, 0, 0, 0, 0, 1, 1, 1, 1, 0],
+      [0, 0, 0, 0, 0, 1, 1, 1, 1, 0],
+      [0, 0, 1, 1, 0, 0, 1, 1, 0, 0],
+      [0, 1, 1, 1, 1, 0, 0, 0, 0, 1],
+      [0, 1, 1, 1, 1, 0, 0, 0, 1, 1],
+      [0, 0, 1, 1, 0, 0, 0, 0, 1, 1],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     ],
-    rowIndications: [],
-    puzzleName: 'flower',
+    width: 10,
+    height: 10,
+    rowIndications: [
+      [3, 2],
+      [3],
+      [2, 2],
+      [4],
+      [4],
+      [2, 2],
+      [4, 1],
+      [4, 2],
+      [2, 2],
+      [1],
+    ],
+    columnIndications: [
+      [3],
+      [3, 2],
+      [2, 4],
+      [4],
+      [2],
+      [2],
+      [4],
+      [1, 4],
+      [1, 2, 2],
+      [4],
+    ],
+    puzzleName: '2',
   ),
   GameLevel(
     number: 3,
     puzzleName: 'house',
-    goal: [],
-    width: 5,
+    goal: [
+      [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+      [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+      [0, 1, 1, 1, 0, 1, 1, 1, 1, 0],
+      [1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+      [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+      [0, 0, 1, 1, 1, 1, 1, 1, 0, 0]
+    ],
+    width: 10,
     height: 10,
     columnIndications: [
-      [1, 1],
-      [1, 1],
-      [1, 1],
-      [1, 1],
-      [1, 1],
+      [5],
+      [3, 2],
+      [1, 3, 2],
+      [8],
+      [2, 7],
+      [1, 8],
+      [8],
+      [8],
+      [7],
+      [5],
     ],
     rowIndications: [
+      [2],
       [1],
-      [1, 1],
-      [1, 1],
-      [1],
-      [1],
-      [1],
-      [1],
-      [1],
-      [1],
-      [1],
+      [3, 4],
+      [2, 7],
+      [10],
+      [1, 8],
+      [1, 8],
+      [2, 7],
+      [8],
+      [6],
     ],
     achievementIdIOS: 'finished',
     achievementIdAndroid: 'CdfIhE96aspNWLGSQg',
@@ -91,12 +146,14 @@ class GameLevel {
 
   /// The achievement to unlock when the level is finished, if any.
   final String? achievementIdIOS;
+  List<List<int>>? solution;
+  Score? score;
 
   final String? achievementIdAndroid;
 
   bool get awardsAchievement => achievementIdAndroid != null;
 
-  const GameLevel({
+  GameLevel({
     required this.number,
     required this.puzzleName,
     required this.goal,
@@ -107,9 +164,15 @@ class GameLevel {
     this.achievementIdIOS,
     this.achievementIdAndroid,
     this.difficulty = 'easy',
+    this.solution,
+    this.score,
   }) : assert(
             (achievementIdAndroid != null && achievementIdIOS != null) ||
                 (achievementIdAndroid == null && achievementIdIOS == null),
             'Either both iOS and Android achievement ID must be provided, '
             'or none');
+
+  void setSolution(List<List<int>> solution) {
+    this.solution = solution;
+  }
 }

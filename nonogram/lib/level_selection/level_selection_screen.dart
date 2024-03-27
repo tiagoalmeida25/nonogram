@@ -17,6 +17,30 @@ import 'levels.dart';
 class LevelSelectionScreen extends StatelessWidget {
   const LevelSelectionScreen({super.key});
 
+  Widget levelSolution(List<List<int>> grid) {
+    return SizedBox(
+      height: 4 * grid.length.toDouble(),
+      width: 4 * grid[0].length.toDouble(),
+      child: GridView.builder(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: grid[0].length,
+          childAspectRatio: 1,
+        ),
+        itemCount: grid.length * grid[0].length,
+        itemBuilder: (context, index) {
+          final row = index ~/ grid[0].length;
+          final col = index % grid[0].length;
+          final cell = grid[row][col];
+          return Container(
+            decoration: BoxDecoration(
+              color: cell == 1 ? Colors.black : Colors.white,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = context.watch<Palette>();
@@ -50,25 +74,44 @@ class LevelSelectionScreen extends StatelessWidget {
                         GoRouter.of(context).go('/play/session/${level.number}');
                       },
                       leading: Text(level.number.toString()),
-                      title: Text(
-                        'Level #${level.number}',
-                        style: TextStyle(
-                          color: playerProgress.highestLevelReached >= level.number - 1
-                              ? palette.ink
-                              : palette.darkPen,
-                        ),
+                      title: Row(
+                        children: [
+                          Text(
+                            'Level #${level.number}',
+                            style: TextStyle(
+                              color: playerProgress.highestLevelReached >= level.number - 1
+                                  ? palette.ink
+                                  : palette.darkPen,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            level.score?.formattedTime != null ? 'in ${level.score?.formattedTime}' : '',
+                            style: TextStyle(
+                              color: playerProgress.highestLevelReached >= level.number - 1
+                                  ? palette.ink.withOpacity(0.5)
+                                  : palette.darkPen,
+                            ),
+                          ),
+                        ],
                       ),
+                      trailing: playerProgress.highestLevelReached > level.number - 1 && level.goal.isNotEmpty
+                          ? levelSolution(level.goal)
+                          : const Icon(Icons.lock),
                     )
                 ],
               ),
             ),
           ],
         ),
-        rectangularMenuArea: MyButton(
-          onPressed: () {
-            GoRouter.of(context).go('/');
-          },
-          child: const Text('Back'),
+        rectangularMenuArea: Padding(
+          padding: const EdgeInsets.all(8),
+          child: MyButton(
+            onPressed: () {
+              GoRouter.of(context).go('/');
+            },
+            child: const Text('Back'),
+          ),
         ),
       ),
     );

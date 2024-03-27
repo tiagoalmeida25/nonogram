@@ -23,7 +23,29 @@ class WinGameScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.watch<Palette>();
 
+    double calculateCellSize(List<List<int>> grid, BuildContext context) {
+      final screenWidth = MediaQuery.of(context).size.width;
+      final maxPuzzleWidth = screenWidth - 64;
+      final cellSize = maxPuzzleWidth / grid[0].length;
+
+      final screenHeight = MediaQuery.of(context).size.height;
+      final maxPuzzleHeight = screenHeight - 400;
+      final cellSizeHeight = maxPuzzleHeight / grid.length;
+
+      if (cellSizeHeight < cellSize) {
+        return cellSizeHeight;
+      }
+
+      return cellSize;
+    }
+
     const gap = SizedBox(height: 10);
+    double cellSize = 0;
+    if (score.goal.isNotEmpty) {
+      cellSize = calculateCellSize(score.goal, context);
+    } else {
+      print(score.solution.toString());
+    }
 
     return Scaffold(
       backgroundColor: palette.backgroundPlaySession,
@@ -43,10 +65,34 @@ class WinGameScreen extends StatelessWidget {
               child: Text(
                 'Score: ${score.score}\n'
                 'Time: ${score.formattedTime}',
-                style: const TextStyle(
-                    fontFamily: 'Permanent Marker', fontSize: 20),
+                style: const TextStyle(fontFamily: 'Permanent Marker', fontSize: 20),
               ),
             ),
+            gap,
+            gap,
+            score.goal.isEmpty
+                ? Text(score.solution.toString())
+                : SizedBox(
+                    height: cellSize * score.goal.length.toDouble(),
+                    width: cellSize * score.goal[0].length.toDouble(),
+                    child: GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: score.goal[0].length,
+                        childAspectRatio: 1,
+                      ),
+                      itemCount: score.goal.length * score.goal[0].length,
+                      itemBuilder: (context, index) {
+                        final row = index ~/ score.goal[0].length;
+                        final col = index % score.goal[0].length;
+                        final cell = score.goal[row][col];
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: cell == 1 ? Colors.black : Colors.white,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
           ],
         ),
         rectangularMenuArea: MyButton(

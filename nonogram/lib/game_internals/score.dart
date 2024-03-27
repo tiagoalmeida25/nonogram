@@ -1,16 +1,13 @@
-// Copyright 2022, the Flutter project authors. Please see the AUTHORS file
-// for details. All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
-
-/// Encapsulates a score and the arithmetic to compute it.
 class Score {
   final int score;
+  final List<List<int>> goal;
+  final List<List<int>> solution;
 
   final int level;
   final Duration duration;
 
-  factory Score(int level, String difficulty, Duration duration) {
-    // The higher the difficulty, the higher the score.
+  factory Score(
+      int level, String difficulty, Duration duration, List<List<int>> goal, List<List<int>> solution) {
     var score = 0;
     switch (difficulty) {
       case 'easy':
@@ -25,10 +22,10 @@ class Score {
       default:
         throw ArgumentError('Unknown difficulty: $difficulty');
     }
-    return Score._(score, duration, level);
+    return Score._(score, duration, level, goal, solution);
   }
 
-  const Score._(this.score, this.duration, this.level);
+  const Score._(this.score, this.duration, this.level, this.goal, this.solution);
 
   String get formattedTime {
     final buf = StringBuffer();

@@ -20,11 +20,6 @@ import '../style/my_button.dart';
 import '../style/palette.dart';
 import 'game_widget.dart';
 
-/// This widget defines the entirety of the screen that the player sees when
-/// they are playing a level.
-///
-/// It is a stateful widget because it manages some state of its own,
-/// such as whether the game is in a "celebration" state.
 class PlaySessionScreen extends StatefulWidget {
   final GameLevel level;
 
@@ -69,20 +64,12 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
         ),
       ],
       child: IgnorePointer(
-        // Ignore all input during the celebration animation.
         ignoring: _duringCelebration,
         child: Scaffold(
           backgroundColor: palette.backgroundPlaySession,
-          // The stack is how you layer widgets on top of each other.
-          // Here, it is used to overlay the winning confetti animation on top
-          // of the game.
           body: Stack(
             children: [
-              // This is the main layout of the play session screen,
-              // with a settings button on top, the actual play area
-              // in the middle, and a back button at the bottom.
               Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Align(
                   //   alignment: Alignment.centerRight,
@@ -96,12 +83,11 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                   // ),
                   // const Spacer(),
                   Expanded(
-                    // The actual UI of the game.
                     child: GameWidget(),
                   ),
-                  const Spacer(),
+                  // const Spacer(),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(16.0),
                     child: MyButton(
                       onPressed: () => GoRouter.of(context).go('/play'),
                       child: const Text('Back'),
@@ -109,8 +95,6 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                   ),
                 ],
               ),
-              // This is the confetti animation that is overlaid on top of the
-              // game when the player wins.
               SizedBox.expand(
                 child: Visibility(
                   visible: _duringCelebration,
@@ -131,11 +115,13 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
   Future<void> _playerWon() async {
     _log.info('Level ${widget.level.number} won');
 
-    final score = Score(
-      widget.level.number,
-      widget.level.difficulty,
-      DateTime.now().difference(_startOfPlay),
-    );
+    final score = Score(widget.level.number, widget.level.difficulty, DateTime.now().difference(_startOfPlay),
+        widget.level.goal, widget.level.solution!);
+
+    if (widget.level.score != null && score.duration < widget.level.score!.duration) {
+      widget.level.score = score;
+    }
+    widget.level.score ??= score;
 
     final playerProgress = context.read<PlayerProgress>();
     playerProgress.setLevelReached(widget.level.number);
