@@ -52,6 +52,45 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
     });
   }
 
+  void confirmPuzzleName() {
+    final TextEditingController controller = TextEditingController(text: widget.name);
+
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Create level'),
+            content: TextField(
+              controller: controller,
+            ),
+            actions: [
+              MyButton(
+                onPressed: () async {
+                  FirebaseFirestore.instance.collection('levels').doc(widget.name).set({
+                    'rowIndications': jsonEncode(rowIndications),
+                    'columnIndications': jsonEncode(columnIndications),
+                    'goal': jsonEncode(
+                        levelState.progress.map((e) => e.map((e) => e == 'X' ? 1 : 0).toList()).toList()),
+                    'name': widget.name,
+                    'height': widget.height,
+                    'width': widget.width,
+                  });
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Puzzle saved! Thank you for contributing!'),
+                    ),
+                  );
+
+                  GoRouter.of(context).push('/');
+                },
+                child: Text('Save'),
+              ),
+            ],
+          );
+        });
+  }
+
   Widget _buildRowIndications(List<List<int>> rows, double cellSize) {
     final maxIndicationWidth = _calculateMaxRowIndicationWidth(rows);
 
@@ -319,23 +358,7 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
             MyButton(
               onPressed: () async {
                 if (isSolvable) {
-                  FirebaseFirestore.instance.collection('levels').doc(widget.name).set({
-                    'rowIndications': jsonEncode(rowIndications),
-                    'columnIndications': jsonEncode(columnIndications),
-                    'goal': jsonEncode(
-                        levelState.progress.map((e) => e.map((e) => e == 'X' ? 1 : 0).toList()).toList()),
-                    'name': widget.name,
-                    'height': widget.height,
-                    'width': widget.width,
-                  });
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Puzzle saved! Thank you for contributing!'),
-                    ),
-                  );
-
-                  GoRouter.of(context).push('/');
+                  confirmPuzzleName();
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(

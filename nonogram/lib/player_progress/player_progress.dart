@@ -37,10 +37,8 @@ class PlayerProgress extends ChangeNotifier {
   /// Resets the player's progress so it's like if they just started
   /// playing the game for the first time.
   void reset() {
-    _highestLevelReached = 0;
     _highestScores = [];
     notifyListeners();
-    _store.saveHighestLevelReached(_highestLevelReached);
     _store.resetScores();
   }
 

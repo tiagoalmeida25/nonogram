@@ -219,7 +219,7 @@ class _GameWidgetState extends State<GameWidget> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text('Level ${level.puzzleName}',
+        Text(level.puzzleName,
             style: TextStyle(
               color: palette.ink,
               fontSize: 24,

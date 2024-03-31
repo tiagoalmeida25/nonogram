@@ -73,7 +73,6 @@ class LevelSelectionScreen extends StatelessWidget {
                 children: [
                   for (final level in levelProvider.levels)
                     ListTile(
-                      enabled: playerProgress.highestLevelReached >= level.number - 1,
                       onTap: () {
                         final audioController = context.read<AudioController>();
                         audioController.playSfx(SfxType.buttonTap);
@@ -84,19 +83,19 @@ class LevelSelectionScreen extends StatelessWidget {
                       title: Row(
                         children: [
                           Text(
-                            'Level #${level.number}',
+                            level.puzzleName,
                             style: TextStyle(
-                              color: playerProgress.highestLevelReached >= level.number - 1
+                              color: playerProgress.highestScores.any((e) => e.level == level.number)
                                   ? palette.ink
                                   : palette.darkPen,
                             ),
                           ),
                           const SizedBox(width: 8),
-                          playerProgress.highestLevelReached > level.number - 1
+                          playerProgress.highestScores.map((e) => e.level).contains(level.number)
                               ? Text(
-                                  'in ${playerProgress.highestScores[level.number - 1].formattedTime}',
+                                  'in ${playerProgress.highestScores.firstWhere((e) => e.level == level.number).formattedTime}',
                                   style: TextStyle(
-                                    color: playerProgress.highestLevelReached >= level.number - 1
+                                    color: playerProgress.highestScores.any((e) => e.level == level.number)
                                         ? palette.ink.withOpacity(0.5)
                                         : palette.darkPen,
                                   ),
@@ -104,8 +103,10 @@ class LevelSelectionScreen extends StatelessWidget {
                               : const SizedBox(),
                         ],
                       ),
-                      trailing: playerProgress.highestLevelReached > level.number - 1 && level.goal.isNotEmpty
-                          ? levelSolution(playerProgress.highestScores[level.number - 1].goal)
+                      trailing: playerProgress.highestScores.any((e) => e.level == level.number) &&
+                              level.goal.isNotEmpty
+                          ? levelSolution(
+                              playerProgress.highestScores.firstWhere((e) => e.level == level.number).goal)
                           : const Icon(Icons.lock),
                     )
                 ],
