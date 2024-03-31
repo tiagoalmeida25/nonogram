@@ -2,6 +2,8 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nonogram/game_internals/score.dart';
@@ -19,19 +21,30 @@ class LevelSelectionScreen extends StatelessWidget {
   const LevelSelectionScreen({super.key});
 
   Widget levelSolution(List<List<int>> grid) {
-    return SizedBox(
-      height: 4 * grid.length.toDouble(),
-      width: 4 * grid[0].length.toDouble(),
+    final int maxDimension = max(grid.length, grid[0].length);
+    final List<List<int>> newGrid = List.generate(maxDimension, (_) => List.generate(maxDimension, (_) => 0));
+
+    final int rowOffset = (maxDimension - grid.length) ~/ 2;
+    final int colOffset = (maxDimension - grid[0].length) ~/ 2;
+
+    for (int i = 0; i < grid.length; i++) {
+      for (int j = 0; j < grid[i].length; j++) {
+        newGrid[i + rowOffset][j + colOffset] = grid[i][j];
+      }
+    }
+
+    return Container(
+      color: Colors.white,
+      height: 50,
+      width: 50,
       child: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: grid[0].length,
-          childAspectRatio: 1,
-        ),
-        itemCount: grid.length * grid[0].length,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: newGrid[0].length),
+        itemCount: newGrid.length * newGrid[0].length,
         itemBuilder: (context, index) {
-          final row = index ~/ grid[0].length;
-          final col = index % grid[0].length;
-          final cell = grid[row][col];
+          final row = index ~/ newGrid[0].length;
+          final col = index % newGrid[0].length;
+          final cell = newGrid[row][col];
           return Container(
             decoration: BoxDecoration(
               color: cell == 1 ? Colors.black : Colors.white,
@@ -115,42 +128,7 @@ class LevelSelectionScreen extends StatelessWidget {
                       ),
                       trailing: const Icon(Icons.lock),
                     );
-            }).toList())
-
-                // ListTile(
-                //   onTap: () {
-                //     final audioController = context.read<AudioController>();
-                //     audioController.playSfx(SfxType.buttonTap);
-
-                //     GoRouter.of(context).go('/play/session/${level.number}');
-                //   },
-                //   leading: Text(level.number.toString()),
-                //   title: Row(
-                //     children: [
-                //       Text(
-                //         level.puzzleName,
-                //         style: TextStyle(
-                //           color: playerProgress.highestScores.any((e) => e.level == level.number)
-                //               ? palette.ink
-                //               : palette.darkPen,
-                //         ),
-                //       ),
-                //       const SizedBox(width: 8),
-                //       playerProgress.highestScores.map((e) => e.level).contains(level.number)
-                //           ? Text(
-                //               'in ${playerProgress.highestScores.firstWhere((e) => e.level == level.number).formattedTime}',
-                //               style: TextStyle(color: palette.ink.withOpacity(0.5)),
-                //             )
-                //           : const SizedBox(),
-                //     ],
-                //   ),
-                //   trailing: playerProgress.highestScores.map((e) => e.level).contains(level.number)
-                //       ? levelSolution(
-                //           playerProgress.highestScores.firstWhere((e) => e.level == level.number).goal)
-                //       : const Icon(Icons.lock),
-                // )
-
-                ),
+            }).toList())),
           ],
         ),
         rectangularMenuArea: Padding(

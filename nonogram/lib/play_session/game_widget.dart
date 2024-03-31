@@ -63,7 +63,7 @@ class _GameWidgetState extends State<GameWidget> {
     final maxIndicationWidth = _calculateMaxRowIndicationWidth(rows);
 
     return GestureDetector(
-      onTap:() {
+      onTap: () {
         levelState.setMarker(levelState.marker == 'X' ? '.' : 'X');
       },
       child: Padding(
@@ -71,18 +71,21 @@ class _GameWidgetState extends State<GameWidget> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: rows.map((row) {
-            final indicationText = row.join('  ');
+            final indicationText = row.join(' ');
             return SizedBox(
               height: cellSize,
               width: maxIndicationWidth,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      indicationText,
-                      style: TextStyle(fontSize: 12, color: palette.ink),
+                  SizedBox(
+                    width: maxIndicationWidth,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        indicationText,
+                        style: TextStyle(fontSize: 12, color: palette.ink),
+                      ),
                     ),
                   ),
                 ],
@@ -110,22 +113,22 @@ class _GameWidgetState extends State<GameWidget> {
   }
 
   Widget _buildColumnIndications(List<List<int>> cols, double cellSize) {
-    return GestureDetector(
-      onTap: () {
-        levelState.setMarker(levelState.marker == 'X' ? '.' : 'X');
-      },
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: cols.map((col) {
-          return SizedBox(
-            width: cellSize,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: col.map((val) => Text(val.toString())).toList(),
-            ),
-          );
-        }).toList(),
-      ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: cols.map((col) {
+        return SizedBox(
+          width: cellSize,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: col
+                .map((val) => FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(val.toString(), style: TextStyle(fontSize: cellSize)),
+                    ))
+                .toList(),
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -184,8 +187,8 @@ class _GameWidgetState extends State<GameWidget> {
         border: Border(
           top: BorderSide(color: Colors.black, width: 0.1),
           left: BorderSide(color: Colors.black, width: 0.1),
-          right: BorderSide(color: Colors.black, width: isRightEdge ? 1 : 0.1),
-          bottom: BorderSide(color: Colors.black, width: isBottomEdge ? 1 : 0.1),
+          right: BorderSide(color: Colors.black, width: isRightEdge ? 1.5 : 0.1),
+          bottom: BorderSide(color: Colors.black, width: isBottomEdge ? 1.5 : 0.1),
         ),
       );
 
@@ -202,7 +205,7 @@ class _GameWidgetState extends State<GameWidget> {
         },
         child: Container(
           decoration: decoration,
-          child: marker == '.' ? Icon(Icons.close) : null,
+          child: marker == '.' ? FittedBox(child: Icon(Icons.close)) : null,
         ),
       );
     }
