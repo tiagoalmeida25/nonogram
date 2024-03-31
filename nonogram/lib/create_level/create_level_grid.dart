@@ -34,7 +34,6 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
   final gridKey = GlobalKey();
   List<List<int>> rowIndications = [];
   List<List<int>> columnIndications = [];
-  bool isSolvable = false;
   bool isDragging = false;
 
   @override
@@ -177,13 +176,24 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
             children: col
                 .map((val) => FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: Text(val.toString(), style: TextStyle(fontSize: cellSize)),
+                      child: Text(val.toString(), style: TextStyle(fontSize: 12)),
                     ))
                 .toList(),
           ),
         );
       }).toList(),
     );
+  }
+
+  bool validatePuzzle() {
+    final nonogram = no.Nonogram.monochrome(rowIndications, columnIndications);
+
+    final solver = no.LogicalSolver.empty(nonogram).solve();
+    final solution = solver.toList();
+
+    print('Solution: ${solution.length}');
+
+    return solution.isNotEmpty;
   }
 
   Widget _buildPuzzleGrid(double cellSize) {
@@ -259,71 +269,43 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
       });
     }
 
-    void validatePuzzle() {
-      final nonogram = no.Nonogram.monochrome(rowIndications, columnIndications);
-
-      setState(() {
-        isSolvable = nonogram.isLineSolveable();
-      });
-    }
-
     void handleDragEnd(DragEndDetails details) {
       setState(() {
         isDragging = false;
         startIndex = null;
         lastUpdatedIndex = null;
         updateIndicators();
-        validatePuzzle();
       });
     }
 
-    Widget buildCell(int index, double cellSize) {
-      int row = index ~/ widget.width;
-      int col = index % widget.width;
-
-      bool isRightEdge = (col + 1) % 5 == 0 && col != widget.width - 1;
-      bool isBottomEdge = (row + 1) % 5 == 0 && row != widget.height - 1;
-
-      BoxDecoration decoration = BoxDecoration(
-        color: levelState.progress[row][col] == 'X' ? Colors.black : Colors.white,
-        border: Border(
-          top: BorderSide(color: Colors.black, width: 0.1),
-          left: BorderSide(color: Colors.black, width: 0.1),
-          right: BorderSide(color: Colors.black, width: isRightEdge ? 1 : 0.1),
-          bottom: BorderSide(color: Colors.black, width: isBottomEdge ? 1 : 0.1),
-        ),
-      );
-
-      return GestureDetector(
-        onPanStart: handleDragStart,
-        onPanUpdate: handleDragUpdate,
-        onPanEnd: handleDragEnd,
-        onTap: () {
-          if (isDragging) return;
-          levelState.setProgress(index);
-          updateIndicators();
-          validatePuzzle();
-        },
-        child: Container(
-          decoration: decoration,
-        ),
-      );
-    }
-
     return Consumer<LevelState>(builder: (context, levelState, child) {
-      return GridView.builder(
-        key: gridKey,
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        padding: EdgeInsets.zero,
-        itemCount: widget.height * widget.width,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: widget.width,
-          childAspectRatio: 1,
-          mainAxisSpacing: 1,
-          crossAxisSpacing: 1,
+      return Container(
+        color: Colors.black,
+        child: GridView.builder(
+          key: gridKey,
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          padding: EdgeInsets.zero,
+          itemCount: widget.height * widget.width,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: widget.width,
+            childAspectRatio: 1,
+            mainAxisSpacing: 1,
+            crossAxisSpacing: 1,
+          ),
+          itemBuilder: (BuildContext context, int index) => Cell(
+            row: index ~/ widget.width,
+            col: index % widget.width,
+            cellSize: cellSize,
+            levelState: levelState,
+            width: widget.width,
+            height: widget.height,
+            onPanStart: handleDragStart,
+            onPanUpdate: handleDragUpdate,
+            onPanEnd: handleDragEnd,
+            updateIndicators: updateIndicators,
+          ),
         ),
-        itemBuilder: (BuildContext context, int index) => buildCell(index, cellSize),
       );
     });
   }
@@ -352,9 +334,11 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
     final cellSize = calculateCellSize();
 
     return Scaffold(
-      backgroundColor: palette.backgroundMain,
+      backgroundColor: palette.backgroundCreateLevel,
       body: ResponsiveScreen(
         squarishMainArea: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Create level',
@@ -386,12 +370,15 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
                 ),
               ],
             ),
+            Spacer(),
           ],
         ),
         rectangularMenuArea: Column(
           children: [
             MyButton(
-              onPressed: () async {
+              onPressed: () {
+                final isSolvable = validatePuzzle();
+
                 if (isSolvable) {
                   confirmPuzzleName();
                 } else {
@@ -403,7 +390,7 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
                 }
                 // checkFirebase();
               },
-              child: Text(isSolvable ? 'Save' : 'Not solvable'),
+              child: Text('Save'),
             ),
             SizedBox(height: 10),
             MyButton(
@@ -414,6 +401,75 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class Cell extends StatefulWidget {
+  final int row;
+  final int col;
+  final double cellSize;
+  final LevelState levelState;
+  final int width;
+  final int height;
+  final Function(DragStartDetails) onPanStart;
+  final Function(DragUpdateDetails) onPanUpdate;
+  final Function(DragEndDetails) onPanEnd;
+  final Function() updateIndicators;
+
+  const Cell({
+    super.key,
+    required this.row,
+    required this.col,
+    required this.cellSize,
+    required this.levelState,
+    required this.width,
+    required this.height,
+    required this.onPanStart,
+    required this.onPanUpdate,
+    required this.onPanEnd,
+    required this.updateIndicators,
+  });
+
+  @override
+  CellState createState() => CellState();
+}
+
+class CellState extends State<Cell> {
+  @override
+  Widget build(BuildContext context) {
+    bool isRightEdge = (widget.col + 1) % 5 == 0 && widget.col != widget.width - 1;
+    bool isBottomEdge = (widget.row + 1) % 5 == 0 && widget.row != widget.height - 1;
+
+    BoxDecoration decoration = BoxDecoration(
+      color: widget.levelState.progress[widget.row][widget.col] == 'X' ? Colors.black : Colors.white,
+      border: Border(
+        top: BorderSide(color: Colors.black, width: 0.1),
+        left: BorderSide(color: Colors.black, width: 0.1),
+        right: BorderSide(color: Colors.black, width: isRightEdge ? 1 : 0.1),
+        bottom: BorderSide(color: Colors.black, width: isBottomEdge ? 1 : 0.1),
+      ),
+    );
+
+    return GestureDetector(
+      onPanStart: (details) {
+        widget.onPanStart(details);
+      },
+      onPanUpdate: (details) {
+        widget.onPanUpdate(details);
+      },
+      onPanEnd: (details) {
+        widget.onPanEnd(details);
+      },
+      onTap: () {
+        setState(() {
+          widget.levelState.setProgress((widget.row * widget.width + widget.col));
+        });
+        widget.updateIndicators();
+      },
+      child: Container(
+        decoration: decoration,
       ),
     );
   }

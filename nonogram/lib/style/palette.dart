@@ -33,5 +33,6 @@ class Palette {
   Color get backgroundPlaySession => Color.fromARGB(255, 29, 29, 29);
   Color get background4 => const Color(0xffffd7ff);
   Color get backgroundSettings => Color.fromARGB(255, 175, 175, 175);
+  Color get backgroundCreateLevel => Color.fromARGB(255, 102, 121, 107);
   Color get trueWhite => const Color(0xffffffff);
 }
