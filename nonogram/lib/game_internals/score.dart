@@ -72,7 +72,7 @@ class Score {
   factory Score.fromJson(dynamic json) {
     return Score._(
       json['score'] as int,
-      json['name'] as String,
+      json['name'] != null ? json['name'] as String : '',
       Score.parseDuration(json['duration'] as String),
       json['level'] as int,
       (json['goal'] as List).map((e) => (e as List).map((i) => i as int).toList()).toList(),

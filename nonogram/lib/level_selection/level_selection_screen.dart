@@ -74,7 +74,7 @@ class LevelSelectionScreen extends StatelessWidget {
                     children: levelProvider.levels.map((level) {
               Score? score = playerProgress.highestScores
                   .cast<Score?>()
-                  .firstWhere((e) => e!.level == level.number, orElse: () => null);
+                  .firstWhere((e) => e!.name == level.puzzleName, orElse: () => null);
 
               return score != null
                   ? ListTile(
@@ -99,7 +99,7 @@ class LevelSelectionScreen extends StatelessWidget {
                         ],
                       ),
                       trailing: levelSolution(
-                          playerProgress.highestScores.firstWhere((e) => e.level == level.number).goal))
+                          playerProgress.highestScores.firstWhere((e) => e.name == level.puzzleName).goal))
                   : ListTile(
                       onTap: () {
                         final audioController = context.read<AudioController>();

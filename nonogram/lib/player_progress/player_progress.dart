@@ -12,14 +12,11 @@ import 'persistence/player_progress_persistence.dart';
 
 /// Encapsulates the player's progress.
 class PlayerProgress extends ChangeNotifier {
-  static const maxHighestScoresPerPlayer = 10;
 
   /// By default, settings are persisted using
   /// [LocalStoragePlayerProgressPersistence] (i.e. NSUserDefaults on iOS,
   /// SharedPreferences on Android or local storage on the web).
   final PlayerProgressPersistence _store;
-
-  int _highestLevelReached = 0;
 
   List<Score> _highestScores = [];
 
@@ -31,7 +28,6 @@ class PlayerProgress extends ChangeNotifier {
   }
 
   /// The highest level that the player has reached so far.
-  int get highestLevelReached => _highestLevelReached;
   List<Score> get highestScores => _highestScores;
 
   /// Resets the player's progress so it's like if they just started
@@ -47,17 +43,18 @@ class PlayerProgress extends ChangeNotifier {
   /// If this is higher than [highestLevelReached], it will update that
   /// value and save it to the injected persistence store.
   void setLevelReached(int level, Score score) {
-    if (!_highestScores.contains(score)) {
-      _highestScores.add(score);
-      notifyListeners();
-      unawaited(_store.saveScore(score));
-    }
+    _highestScores.add(score);
+    unawaited(_store.saveScore(score));
+    notifyListeners();
   }
 
   /// Fetches the latest data from the backing persistence store.
   Future<void> _getLatestFromStore() async {
     final scores = await _store.getHighestScores();
 
+    print('Scores: $scores _highestScores: $_highestScores');
+
+    scores.map((level) => _store.saveScore(level));
     _highestScores = scores;
     notifyListeners();
   }
