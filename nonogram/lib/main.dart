@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:nonogram/firebase_options.dart';
+import 'package:nonogram/level_selection/level_provider.dart';
 // import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +26,10 @@ void main() async {
   // });
 
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   // Put game into full screen mode on mobile devices.
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
@@ -53,6 +58,7 @@ class MyApp extends StatelessWidget {
         providers: [
           Provider(create: (context) => SettingsController()),
           Provider(create: (context) => Palette()),
+          ChangeNotifierProvider(create: (context) => LevelProvider()),
           ChangeNotifierProvider(create: (context) => PlayerProgress()),
           // Set up audio.
           ProxyProvider2<AppLifecycleStateNotifier, SettingsController, AudioController>(

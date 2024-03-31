@@ -162,8 +162,7 @@ class LevelState extends ChangeNotifier {
 
   void evaluate() {
     int counter = 0;
-    List<List<int>> userGrid = _progress.map((e) => e.map((e) => e == 'X' ? 1 : 0).toList()).toList();
-
+    List<List<int>> userGrid = _progress.map((row) => row.map((e) => e == 'X' ? 1 : 0).toList()).toList();
     if (goal.isNotEmpty) {
       for (int i = 0; i < goal.length; i++) {
         if (listEquals(userGrid[i], goal[i])) {

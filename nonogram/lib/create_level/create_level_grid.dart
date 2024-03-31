@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nonogram/game_internals/level_state.dart';
 import 'package:nonogram_dart/nonogram_dart.dart' as no;
 import 'package:provider/provider.dart';
 
@@ -14,7 +16,6 @@ class CreateLevelGridScreen extends StatefulWidget {
   final int width;
   final int height;
   final String name;
-  static const _gap = SizedBox(height: 45);
 
   const CreateLevelGridScreen({
     super.key,
@@ -29,29 +30,26 @@ class CreateLevelGridScreen extends StatefulWidget {
 
 class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
   final Palette palette = Palette();
+  late LevelState levelState;
   final gridKey = GlobalKey();
-  List<List<int>> grid = [];
   List<List<int>> rowIndications = [];
   List<List<int>> columnIndications = [];
   bool isSolvable = false;
+  bool isDragging = false;
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-      grid = List.generate(widget.height, (_) => List.generate(widget.width, (_) => 0));
-      rowIndications = List.generate(widget.height, (_) => List.generate(1, (_) => 0));
-      columnIndications = List.generate(widget.width, (_) => List.generate(1, (_) => 0));
-    });
-  }
+    levelState = context.read<LevelState>();
 
-  void checkFirebase() async {
-    try {
-      final snapshot = await FirebaseFirestore.instance.collection('levels').get();
-      print('Fetched ${snapshot.docs.length} documents from Firestore.');
-    } catch (e) {
-      print('Failed to fetch documents: $e');
-    }
+    Future.microtask(() {
+      setState(() {
+        rowIndications = List.generate(widget.height, (_) => List.generate(1, (_) => 0));
+        columnIndications = List.generate(widget.width, (_) => List.generate(1, (_) => 0));
+      });
+      levelState.initProgress(widget.height, widget.width);
+      levelState.setIndicators(rowIndications, columnIndications);
+    });
   }
 
   Widget _buildRowIndications(List<List<int>> rows, double cellSize) {
@@ -120,16 +118,16 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
     int? dragMarker;
 
     void handleDragStart(DragStartDetails details) {
+      isDragging = true;
+
       final RenderBox renderBox = gridKey.currentContext?.findRenderObject() as RenderBox;
       final offset = renderBox.globalToLocal(details.globalPosition);
       final int row = (offset.dy / cellSize).floor();
       final int col = (offset.dx / cellSize).floor();
       startIndex = row * widget.width + col;
       lastUpdatedIndex = startIndex;
-
-      grid[row][col] = grid[row][col] == 1 ? 0 : 1;
-
-      dragMarker = grid[row][col];
+      levelState.setProgress(startIndex!);
+      dragMarker = levelState.progress[row][col] == 'X' ? 1 : 0;
     }
 
     void handleDragUpdate(DragUpdateDetails details) {
@@ -138,25 +136,18 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
       final int currentRow = (offset.dy / cellSize).floor();
       final int currentCol = (offset.dx / cellSize).floor();
       final currentIndex = currentRow * widget.width + currentCol;
-
-      if (grid[currentRow][currentCol] == dragMarker) {
-        return;
-      }
+      final cellMarker = levelState.progress[currentRow][currentCol] == 'X' ? 1 : 0;
+      if (cellMarker == dragMarker) return;
 
       if (currentIndex != lastUpdatedIndex) {
-        grid[currentRow][currentCol] = grid[currentRow][currentCol] == 1 ? 0 : 1;
+        levelState.setProgress(currentIndex);
         lastUpdatedIndex = currentIndex;
       }
     }
 
-    void handleDragEnd(DragEndDetails details) {
-      startIndex = null;
-      lastUpdatedIndex = null;
-    }
-
     void updateIndicators() {
       for (int i = 0; i < widget.height; i++) {
-        final row = grid[i].map((e) => e == 1 ? 1 : 0).toList();
+        final row = levelState.progress[i].map((e) => e == 'X' ? 1 : 0).toList();
         for (int j = 0; j < row.length; j++) {
           if (row[j] == 1) {
             if (j > 0) {
@@ -166,10 +157,13 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
           }
         }
         rowIndications[i] = row.where((element) => element > 0).toList();
+        if (rowIndications[i].isEmpty) {
+          rowIndications[i] = [0];
+        }
       }
 
       for (int i = 0; i < widget.width; i++) {
-        final column = grid.map((e) => e[i]).map((e) => e == 1 ? 1 : 0).toList();
+        final column = levelState.progress.map((e) => e[i]).map((e) => e == 'X' ? 1 : 0).toList();
         for (int j = 0; j < column.length; j++) {
           if (column[j] == 1) {
             if (j > 0) {
@@ -199,6 +193,16 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
       });
     }
 
+    void handleDragEnd(DragEndDetails details) {
+      setState(() {
+        isDragging = false;
+        startIndex = null;
+        lastUpdatedIndex = null;
+        updateIndicators();
+        validatePuzzle();
+      });
+    }
+
     Widget buildCell(int index, double cellSize) {
       int row = index ~/ widget.width;
       int col = index % widget.width;
@@ -207,7 +211,7 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
       bool isBottomEdge = (row + 1) % 5 == 0 && row != widget.height - 1;
 
       BoxDecoration decoration = BoxDecoration(
-        color: grid[row][col] == 1 ? Colors.black : Colors.white,
+        color: levelState.progress[row][col] == 'X' ? Colors.black : Colors.white,
         border: Border(
           top: BorderSide(color: Colors.black, width: 0.1),
           left: BorderSide(color: Colors.black, width: 0.1),
@@ -221,12 +225,8 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
         onPanUpdate: handleDragUpdate,
         onPanEnd: handleDragEnd,
         onTap: () {
-          final col = index % widget.width;
-          final row = index ~/ widget.width;
-
-          setState(() {
-            grid[row][col] = grid[row][col] == 1 ? 0 : 1;
-          });
+          if (isDragging) return;
+          levelState.setProgress(index);
           updateIndicators();
           validatePuzzle();
         },
@@ -236,25 +236,29 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
       );
     }
 
-    return GridView.builder(
-      key: gridKey,
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      padding: EdgeInsets.zero,
-      itemCount: widget.height * widget.width,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: widget.width,
-        childAspectRatio: 1,
-        mainAxisSpacing: 1,
-        crossAxisSpacing: 1,
-      ),
-      itemBuilder: (BuildContext context, int index) => buildCell(index, cellSize),
-    );
+    return Consumer<LevelState>(builder: (context, levelState, child) {
+      return GridView.builder(
+        key: gridKey,
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        padding: EdgeInsets.zero,
+        itemCount: widget.height * widget.width,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: widget.width,
+          childAspectRatio: 1,
+          mainAxisSpacing: 1,
+          crossAxisSpacing: 1,
+        ),
+        itemBuilder: (BuildContext context, int index) => buildCell(index, cellSize),
+      );
+    });
   }
 
   double calculateCellSize() {
+    final maxRow = _calculateMaxRowIndicationWidth(rowIndications);
+
     final screenWidth = MediaQuery.of(context).size.width;
-    final maxPuzzleWidth = screenWidth - 64;
+    final maxPuzzleWidth = screenWidth - maxRow - 30;
     final cellSize = maxPuzzleWidth / widget.width;
 
     final screenHeight = MediaQuery.of(context).size.height;
@@ -276,9 +280,8 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
     return Scaffold(
       backgroundColor: palette.backgroundMain,
       body: ResponsiveScreen(
-        squarishMainArea: ListView(
+        squarishMainArea: Column(
           children: [
-            CreateLevelGridScreen._gap,
             const Text(
               'Create level',
               textAlign: TextAlign.center,
@@ -288,7 +291,7 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
                 height: 1,
               ),
             ),
-            CreateLevelGridScreen._gap,
+            Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -314,16 +317,17 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
         rectangularMenuArea: Column(
           children: [
             MyButton(
-              onPressed: () {
+              onPressed: () async {
                 if (isSolvable) {
-                FirebaseFirestore.instance.collection('levels').doc(widget.name).set({
-                  'rowIndications': rowIndications,
-                  'columnIndications': columnIndications,
-                  'name': widget.name,
-                  'goal': grid,
-                  'height': widget.height,
-                  'width': widget.width,
-                });
+                  FirebaseFirestore.instance.collection('levels').doc(widget.name).set({
+                    'rowIndications': jsonEncode(rowIndications),
+                    'columnIndications': jsonEncode(columnIndications),
+                    'goal': jsonEncode(
+                        levelState.progress.map((e) => e.map((e) => e == 'X' ? 1 : 0).toList()).toList()),
+                    'name': widget.name,
+                    'height': widget.height,
+                    'width': widget.width,
+                  });
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(

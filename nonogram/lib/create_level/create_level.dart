@@ -115,7 +115,7 @@ class _CreateLevelScreenState extends State<CreateLevelScreen> {
                   return;
                 }
 
-                GoRouter.of(context).push('/create_level_grid/$height/$width/${controller.text}');
+                GoRouter.of(context).push('/create_level_grid/$width/$height/${controller.text}');
               },
               child: const Text('Create'),
             ),

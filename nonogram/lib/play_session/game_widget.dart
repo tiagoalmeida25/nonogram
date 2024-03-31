@@ -42,8 +42,10 @@ class _GameWidgetState extends State<GameWidget> {
   }
 
   double calculateCellSize() {
+    final maxRows = _calculateMaxRowIndicationWidth(level.rowIndications);
+
     final screenWidth = MediaQuery.of(context).size.width;
-    final maxPuzzleWidth = screenWidth - 32;
+    final maxPuzzleWidth = screenWidth - maxRows - 32;
     final cellSize = maxPuzzleWidth / level.width;
 
     final screenHeight = MediaQuery.of(context).size.height;
@@ -99,7 +101,7 @@ class _GameWidgetState extends State<GameWidget> {
       maxWidth = max(maxWidth, textPainter.width);
     }
 
-    return maxWidth+4;
+    return maxWidth + 6;
   }
 
   Widget _buildColumnIndications(List<List<int>> cols, double cellSize) {
@@ -154,6 +156,8 @@ class _GameWidgetState extends State<GameWidget> {
 
     void handleDragEnd(DragEndDetails details) {
       levelState.evaluate();
+      level.setSolution(levelState.progress.map((e) => e.map((e) => e == 'X' ? 1 : 0).toList()).toList());
+
       isDragging = false;
       lastUpdatedIndex = null;
     }
@@ -180,7 +184,7 @@ class _GameWidgetState extends State<GameWidget> {
         onPanUpdate: handleDragUpdate,
         onPanEnd: handleDragEnd,
         onTap: () {
-          if (isDragging) return;
+          // if (isDragging) return;
           context.read<AudioController>().playSfx(SfxType.wssh);
           levelState.setProgress(index);
           level.setSolution(levelState.progress.map((e) => e.map((e) => e == 'X' ? 1 : 0).toList()).toList());
@@ -240,8 +244,6 @@ class _GameWidgetState extends State<GameWidget> {
         Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            // mainAxisAlignment: MainAxisAlignment.start,
-            // crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row(
                 mainAxisSize: MainAxisSize.min,

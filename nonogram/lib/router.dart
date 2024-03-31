@@ -2,15 +2,16 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nonogram/create_level/create_level.dart';
 import 'package:nonogram/create_level/create_level_grid.dart';
+import 'package:nonogram/game_internals/level_state.dart';
+import 'package:nonogram/level_selection/level_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'game_internals/score.dart';
 import 'level_selection/level_selection_screen.dart';
-import 'level_selection/levels.dart';
 import 'main_menu/main_menu_screen.dart';
 import 'play_session/play_session_screen.dart';
 import 'settings/settings_screen.dart';
@@ -39,8 +40,17 @@ final router = GoRouter(
               GoRoute(
                 path: 'session/:level',
                 pageBuilder: (context, state) {
+                  final levelProvider = Provider.of<LevelProvider>(context, listen: false);
+                  if (levelProvider.isLoading) {
+                    return MaterialPage(
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
+
                   final levelNumber = int.parse(state.pathParameters['level']!);
-                  final level = gameLevels.singleWhere((e) => e.number == levelNumber);
+                  final level = levelProvider.levels.singleWhere((e) => e.number == levelNumber);
                   return buildMyTransition<void>(
                     key: ValueKey('level'),
                     color: context.watch<Palette>().backgroundPlaySession,
@@ -93,7 +103,11 @@ final router = GoRouter(
               int height = int.parse(state.pathParameters['height'] ?? '0');
               String name = state.pathParameters['name'] ?? '';
 
-              return CreateLevelGridScreen(width: width, height: height, name: name);
+              return ChangeNotifierProvider<LevelState>(
+                  create: (context) => LevelState(
+                        onWin: () {},
+                      ),
+                  child: CreateLevelGridScreen(width: width, height: height, name: name));
             }),
       ],
     ),

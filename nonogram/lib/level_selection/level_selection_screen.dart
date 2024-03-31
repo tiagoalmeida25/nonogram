@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nonogram/level_selection/level_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../audio/audio_controller.dart';
@@ -12,7 +13,6 @@ import '../player_progress/player_progress.dart';
 import '../style/my_button.dart';
 import '../style/palette.dart';
 import '../style/responsive_screen.dart';
-import 'levels.dart';
 
 class LevelSelectionScreen extends StatelessWidget {
   const LevelSelectionScreen({super.key});
@@ -45,6 +45,13 @@ class LevelSelectionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.watch<Palette>();
     final playerProgress = context.watch<PlayerProgress>();
+    final levelProvider = context.watch<LevelProvider>();
+
+    if (levelProvider.isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
 
     return Scaffold(
       backgroundColor: palette.backgroundLevelSelection,
@@ -64,7 +71,7 @@ class LevelSelectionScreen extends StatelessWidget {
             Expanded(
               child: ListView(
                 children: [
-                  for (final level in gameLevels)
+                  for (final level in levelProvider.levels)
                     ListTile(
                       enabled: playerProgress.highestLevelReached >= level.number - 1,
                       onTap: () {
