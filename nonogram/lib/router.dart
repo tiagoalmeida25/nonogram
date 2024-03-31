@@ -4,6 +4,8 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nonogram/create_level/create_level.dart';
+import 'package:nonogram/create_level/create_level_grid.dart';
 import 'package:provider/provider.dart';
 
 import 'game_internals/score.dart';
@@ -38,8 +40,7 @@ final router = GoRouter(
                 path: 'session/:level',
                 pageBuilder: (context, state) {
                   final levelNumber = int.parse(state.pathParameters['level']!);
-                  final level =
-                      gameLevels.singleWhere((e) => e.number == levelNumber);
+                  final level = gameLevels.singleWhere((e) => e.number == levelNumber);
                   return buildMyTransition<void>(
                     key: ValueKey('level'),
                     color: context.watch<Palette>().backgroundPlaySession,
@@ -79,9 +80,21 @@ final router = GoRouter(
             ]),
         GoRoute(
           path: 'settings',
-          builder: (context, state) =>
-              const SettingsScreen(key: Key('settings')),
+          builder: (context, state) => const SettingsScreen(key: Key('settings')),
         ),
+        GoRoute(
+          path: 'create_level',
+          builder: (context, state) => CreateLevelScreen(),
+        ),
+        GoRoute(
+            path: 'create_level_grid/:width/:height/:name',
+            builder: (context, state) {
+              int width = int.parse(state.pathParameters['width'] ?? '0');
+              int height = int.parse(state.pathParameters['height'] ?? '0');
+              String name = state.pathParameters['name'] ?? '';
+
+              return CreateLevelGridScreen(width: width, height: height, name: name);
+            }),
       ],
     ),
   ],

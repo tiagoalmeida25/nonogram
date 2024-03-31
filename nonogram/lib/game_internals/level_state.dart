@@ -175,7 +175,6 @@ class LevelState extends ChangeNotifier {
         onWin();
       }
     } else {
-      print('rows: $rowIndicatorsCompleted columns: $columnIndicatorsCompleted');
       for (int i = 0; i < rowIndicatorsCompleted.length; i++) {
         if (rowIndicatorsCompleted[i].isEmpty) {
           counter++;

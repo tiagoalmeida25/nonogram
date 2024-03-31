@@ -31,11 +31,7 @@ class MainMenuScreen extends StatelessWidget {
             child: const Text(
               'Nonogram!',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'Permanent Marker',
-                fontSize: 55,
-                height: 1,
-              ),
+              style: TextStyle(fontFamily: 'Permanent Marker', fontSize: 55, height: 1),
             ),
           ),
         ),
@@ -53,6 +49,11 @@ class MainMenuScreen extends StatelessWidget {
             MyButton(
               onPressed: () => GoRouter.of(context).push('/settings'),
               child: const Text('Settings'),
+            ),
+            _gap,
+            MyButton(
+              onPressed: () => GoRouter.of(context).push('/create_level'),
+              child: const Text('Create level'),
             ),
             _gap,
             Padding(

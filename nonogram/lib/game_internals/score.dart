@@ -7,7 +7,12 @@ class Score {
   final Duration duration;
 
   factory Score(
-      int level, String difficulty, Duration duration, List<List<int>> goal, List<List<int>> solution) {
+    int level,
+    String difficulty,
+    Duration duration,
+    List<List<int>> goal,
+    List<List<int>> solution,
+  ) {
     var score = 0;
     switch (difficulty) {
       case 'easy':
@@ -45,6 +50,29 @@ class Score {
     return buf.toString();
   }
 
-  @override
-  String toString() => 'Score<$score,$formattedTime,$level>';
+  static Duration parseDuration(String durationString) {
+    var parts = durationString.split(':').map((part) => double.parse(part)).toList();
+    return Duration(
+        hours: parts[0].toInt(), minutes: parts[1].toInt(), milliseconds: (parts[2] * 1000).toInt());
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'score': score,
+      'goal': goal,
+      'solution': solution,
+      'level': level,
+      'duration': duration.toString(),
+    };
+  }
+
+  factory Score.fromJson(dynamic json) {
+    return Score._(
+      json['score'] as int,
+      Score.parseDuration(json['duration'] as String),
+      json['level'] as int,
+      (json['goal'] as List).map((e) => (e as List).map((i) => i as int).toList()).toList(),
+      (json['solution'] as List).map((e) => (e as List).map((i) => i as int).toList()).toList(),
+    );
+  }
 }

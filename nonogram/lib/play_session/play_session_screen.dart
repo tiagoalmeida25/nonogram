@@ -118,13 +118,15 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
     final score = Score(widget.level.number, widget.level.difficulty, DateTime.now().difference(_startOfPlay),
         widget.level.goal, widget.level.solution!);
 
-    if (widget.level.score != null && score.duration < widget.level.score!.duration) {
+    if (widget.level.score == null) {
+      widget.level.score = score;
+    } else if (widget.level.score != null && score.duration < widget.level.score!.duration) {
+      print('Updated highscore');
       widget.level.score = score;
     }
-    widget.level.score ??= score;
 
     final playerProgress = context.read<PlayerProgress>();
-    playerProgress.setLevelReached(widget.level.number);
+    playerProgress.setLevelReached(widget.level.number, widget.level.score!);
 
     // Let the player see the game just after winning for a bit.
     await Future<void>.delayed(_preCelebrationDuration);

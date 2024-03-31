@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // import 'package:logging/logging.dart';
@@ -23,6 +24,8 @@ void main() async {
   // });
 
   WidgetsFlutterBinding.ensureInitialized();
+  Firebase.initializeApp();
+
   // Put game into full screen mode on mobile devices.
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   // Lock the game to portrait mode on mobile devices.
@@ -69,22 +72,14 @@ class MyApp extends StatelessWidget {
           return MaterialApp.router(
             title: 'Nonogram',
             theme: ThemeData.from(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: palette.darkPen,
-                surface: palette.backgroundMain,
-              ),
-              textTheme: TextTheme(
-                bodyMedium: TextStyle(color: palette.ink),
-              ),
+              colorScheme: ColorScheme.fromSeed(seedColor: palette.darkPen, surface: palette.backgroundMain),
+              textTheme: TextTheme(bodyMedium: TextStyle(color: palette.ink)),
               useMaterial3: true,
             ).copyWith(
               // Make buttons more fun.
               filledButtonTheme: FilledButtonThemeData(
                 style: FilledButton.styleFrom(
-                  textStyle: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                  ),
+                  textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                 ),
               ),
             ),

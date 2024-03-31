@@ -2,6 +2,8 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:nonogram/game_internals/score.dart';
+
 /// An interface of persistence stores for the player's progress.
 ///
 /// Implementations can range from simple in-memory storage through
@@ -10,4 +12,10 @@ abstract class PlayerProgressPersistence {
   Future<int> getHighestLevelReached();
 
   Future<void> saveHighestLevelReached(int level);
+
+  Future<void> saveScore(Score score);
+
+  Future<List<Score>> getHighestScores();
+
+  Future<void> resetScores();
 }

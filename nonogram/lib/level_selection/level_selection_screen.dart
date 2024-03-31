@@ -85,18 +85,20 @@ class LevelSelectionScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Text(
-                            level.score?.formattedTime != null ? 'in ${level.score?.formattedTime}' : '',
-                            style: TextStyle(
-                              color: playerProgress.highestLevelReached >= level.number - 1
-                                  ? palette.ink.withOpacity(0.5)
-                                  : palette.darkPen,
-                            ),
-                          ),
+                          playerProgress.highestLevelReached > level.number - 1
+                              ? Text(
+                                  'in ${playerProgress.highestScores[level.number - 1].formattedTime}',
+                                  style: TextStyle(
+                                    color: playerProgress.highestLevelReached >= level.number - 1
+                                        ? palette.ink.withOpacity(0.5)
+                                        : palette.darkPen,
+                                  ),
+                                )
+                              : const SizedBox(),
                         ],
                       ),
                       trailing: playerProgress.highestLevelReached > level.number - 1 && level.goal.isNotEmpty
-                          ? levelSolution(level.goal)
+                          ? levelSolution(playerProgress.highestScores[level.number - 1].goal)
                           : const Icon(Icons.lock),
                     )
                 ],

@@ -99,7 +99,7 @@ class _GameWidgetState extends State<GameWidget> {
       maxWidth = max(maxWidth, textPainter.width);
     }
 
-    return maxWidth;
+    return maxWidth+4;
   }
 
   Widget _buildColumnIndications(List<List<int>> cols, double cellSize) {
@@ -168,22 +168,10 @@ class _GameWidgetState extends State<GameWidget> {
       BoxDecoration decoration = BoxDecoration(
         color: marker == 'X' ? Colors.black : Colors.white,
         border: Border(
-          top: BorderSide(
-            color: Colors.black,
-            width: 0.1,
-          ),
-          left: BorderSide(
-            color: Colors.black,
-            width: 0.1,
-          ),
-          right: BorderSide(
-            color: Colors.black,
-            width: isRightEdge ? 1 : 0.1,
-          ),
-          bottom: BorderSide(
-            color: Colors.black,
-            width: isBottomEdge ? 1 : 0.1,
-          ),
+          top: BorderSide(color: Colors.black, width: 0.1),
+          left: BorderSide(color: Colors.black, width: 0.1),
+          right: BorderSide(color: Colors.black, width: isRightEdge ? 1 : 0.1),
+          bottom: BorderSide(color: Colors.black, width: isBottomEdge ? 1 : 0.1),
         ),
       );
 

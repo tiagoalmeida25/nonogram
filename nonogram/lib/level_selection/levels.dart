@@ -3,7 +3,7 @@ import 'package:nonogram/game_internals/score.dart';
 List<GameLevel> gameLevels = [
   GameLevel(
     number: 1,
-    puzzleName: '1',
+    puzzleName: 'Person',
     goal: [
       [
         0,
@@ -86,11 +86,11 @@ List<GameLevel> gameLevels = [
       [1, 2, 2],
       [4],
     ],
-    puzzleName: '2',
+    puzzleName: 'Galaxies',
   ),
   GameLevel(
     number: 3,
-    puzzleName: 'house',
+    puzzleName: 'Apple',
     goal: [
       [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
       [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
