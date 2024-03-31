@@ -69,8 +69,8 @@ class _CreateLevelScreenState extends State<CreateLevelScreen> {
             Slider(
               value: height.toDouble(),
               min: 5,
-              max: 25,
-              divisions: 4,
+              max: 35,
+              divisions: 30,
               onChanged: (double value) {
                 setState(() {
                   height = value.toInt();
@@ -91,8 +91,8 @@ class _CreateLevelScreenState extends State<CreateLevelScreen> {
             Slider(
               value: width.toDouble(),
               min: 5,
-              max: 25,
-              divisions: 4,
+              max: 35,
+              divisions: 30,
               onChanged: (double value) {
                 setState(() {
                   width = value.toInt();

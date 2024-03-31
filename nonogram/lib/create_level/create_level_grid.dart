@@ -66,15 +66,43 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
             actions: [
               MyButton(
                 onPressed: () async {
-                  FirebaseFirestore.instance.collection('levels').doc(widget.name).set({
-                    'rowIndications': jsonEncode(rowIndications),
-                    'columnIndications': jsonEncode(columnIndications),
-                    'goal': jsonEncode(
-                        levelState.progress.map((e) => e.map((e) => e == 'X' ? 1 : 0).toList()).toList()),
-                    'name': widget.name,
-                    'height': widget.height,
-                    'width': widget.width,
-                  });
+                  final docSnapshot =
+                      await FirebaseFirestore.instance.collection('levels').doc(controller.text).get();
+                  if (docSnapshot.exists) {
+                    final querySnapshot = await FirebaseFirestore.instance
+                        .collection('levels')
+                        .where('name', isGreaterThanOrEqualTo: controller.text)
+                        .get();
+
+                    final existingNames = querySnapshot.docs.map((doc) => doc.id).toList();
+
+                    int maxVersion = existingNames
+                        .where((name) => name.startsWith(controller.text))
+                        .map((name) => int.tryParse(name.split('_').last) ?? 1)
+                        .fold(1, max);
+
+                    final newName = '${controller.text} ${maxVersion + 1}';
+
+                    FirebaseFirestore.instance.collection('levels').doc(newName).set({
+                      'rowIndications': jsonEncode(rowIndications),
+                      'columnIndications': jsonEncode(columnIndications),
+                      'goal': jsonEncode(
+                          levelState.progress.map((e) => e.map((e) => e == 'X' ? 1 : 0).toList()).toList()),
+                      'name': controller.text,
+                      'height': widget.height,
+                      'width': widget.width,
+                    });
+                  } else {
+                    FirebaseFirestore.instance.collection('levels').doc(controller.text).set({
+                      'rowIndications': jsonEncode(rowIndications),
+                      'columnIndications': jsonEncode(columnIndications),
+                      'goal': jsonEncode(
+                          levelState.progress.map((e) => e.map((e) => e == 'X' ? 1 : 0).toList()).toList()),
+                      'name': controller.text,
+                      'height': widget.height,
+                      'width': widget.width,
+                    });
+                  }
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -108,9 +136,11 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
               children: [
                 Align(
                   alignment: Alignment.centerRight,
-                  child: Text(
-                    indicationText,
-                    style: TextStyle(fontSize: 12, color: palette.ink),
+                  child: FittedBox(
+                    child: Text(
+                      indicationText,
+                      style: TextStyle(fontSize: 12, color: palette.ink),
+                    ),
                   ),
                 ),
               ],
@@ -144,7 +174,12 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
           width: cellSize,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
-            children: col.map((val) => Text(val.toString())).toList(),
+            children: col
+                .map((val) => FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(val.toString(), style: TextStyle(fontSize: cellSize)),
+                    ))
+                .toList(),
           ),
         );
       }).toList(),

@@ -1,5 +1,6 @@
 class Score {
   final int score;
+  final String name;
   final List<List<int>> goal;
   final List<List<int>> solution;
 
@@ -8,6 +9,7 @@ class Score {
 
   factory Score(
     int level,
+    String name,
     String difficulty,
     Duration duration,
     List<List<int>> goal,
@@ -27,10 +29,10 @@ class Score {
       default:
         throw ArgumentError('Unknown difficulty: $difficulty');
     }
-    return Score._(score, duration, level, goal, solution);
+    return Score._(score, name, duration, level, goal, solution);
   }
 
-  const Score._(this.score, this.duration, this.level, this.goal, this.solution);
+  const Score._(this.score, this.name, this.duration, this.level, this.goal, this.solution);
 
   String get formattedTime {
     final buf = StringBuffer();
@@ -62,6 +64,7 @@ class Score {
       'goal': goal,
       'solution': solution,
       'level': level,
+      'name': name,
       'duration': duration.toString(),
     };
   }
@@ -69,6 +72,7 @@ class Score {
   factory Score.fromJson(dynamic json) {
     return Score._(
       json['score'] as int,
+      json['name'] as String,
       Score.parseDuration(json['duration'] as String),
       json['level'] as int,
       (json['goal'] as List).map((e) => (e as List).map((i) => i as int).toList()).toList(),

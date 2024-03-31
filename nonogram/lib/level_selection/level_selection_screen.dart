@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nonogram/game_internals/score.dart';
 import 'package:nonogram/level_selection/level_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -69,10 +70,14 @@ class LevelSelectionScreen extends StatelessWidget {
             ),
             const SizedBox(height: 50),
             Expanded(
-              child: ListView(
-                children: [
-                  for (final level in levelProvider.levels)
-                    ListTile(
+                child: ListView(
+                    children: levelProvider.levels.map((level) {
+              Score? score = playerProgress.highestScores
+                  .cast<Score?>()
+                  .firstWhere((e) => e!.level == level.number, orElse: () => null);
+
+              return score != null
+                  ? ListTile(
                       onTap: () {
                         final audioController = context.read<AudioController>();
                         audioController.playSfx(SfxType.buttonTap);
@@ -84,34 +89,68 @@ class LevelSelectionScreen extends StatelessWidget {
                         children: [
                           Text(
                             level.puzzleName,
-                            style: TextStyle(
-                              color: playerProgress.highestScores.any((e) => e.level == level.number)
-                                  ? palette.ink
-                                  : palette.darkPen,
-                            ),
+                            style: TextStyle(color: palette.ink),
                           ),
                           const SizedBox(width: 8),
-                          playerProgress.highestScores.map((e) => e.level).contains(level.number)
-                              ? Text(
-                                  'in ${playerProgress.highestScores.firstWhere((e) => e.level == level.number).formattedTime}',
-                                  style: TextStyle(
-                                    color: playerProgress.highestScores.any((e) => e.level == level.number)
-                                        ? palette.ink.withOpacity(0.5)
-                                        : palette.darkPen,
-                                  ),
-                                )
-                              : const SizedBox(),
+                          Text(
+                            'in ${playerProgress.highestScores.firstWhere((e) => e.level == level.number).formattedTime}',
+                            style: TextStyle(color: palette.ink.withOpacity(0.5)),
+                          )
                         ],
                       ),
-                      trailing: playerProgress.highestScores.any((e) => e.level == level.number) &&
-                              level.goal.isNotEmpty
-                          ? levelSolution(
-                              playerProgress.highestScores.firstWhere((e) => e.level == level.number).goal)
-                          : const Icon(Icons.lock),
-                    )
-                ],
-              ),
-            ),
+                      trailing: levelSolution(
+                          playerProgress.highestScores.firstWhere((e) => e.level == level.number).goal))
+                  : ListTile(
+                      onTap: () {
+                        final audioController = context.read<AudioController>();
+                        audioController.playSfx(SfxType.buttonTap);
+
+                        GoRouter.of(context).go('/play/session/${level.number}');
+                      },
+                      leading: Text(level.number.toString()),
+                      title: Row(
+                        children: [
+                          Text(level.puzzleName, style: TextStyle(color: palette.darkPen)),
+                        ],
+                      ),
+                      trailing: const Icon(Icons.lock),
+                    );
+            }).toList())
+
+                // ListTile(
+                //   onTap: () {
+                //     final audioController = context.read<AudioController>();
+                //     audioController.playSfx(SfxType.buttonTap);
+
+                //     GoRouter.of(context).go('/play/session/${level.number}');
+                //   },
+                //   leading: Text(level.number.toString()),
+                //   title: Row(
+                //     children: [
+                //       Text(
+                //         level.puzzleName,
+                //         style: TextStyle(
+                //           color: playerProgress.highestScores.any((e) => e.level == level.number)
+                //               ? palette.ink
+                //               : palette.darkPen,
+                //         ),
+                //       ),
+                //       const SizedBox(width: 8),
+                //       playerProgress.highestScores.map((e) => e.level).contains(level.number)
+                //           ? Text(
+                //               'in ${playerProgress.highestScores.firstWhere((e) => e.level == level.number).formattedTime}',
+                //               style: TextStyle(color: palette.ink.withOpacity(0.5)),
+                //             )
+                //           : const SizedBox(),
+                //     ],
+                //   ),
+                //   trailing: playerProgress.highestScores.map((e) => e.level).contains(level.number)
+                //       ? levelSolution(
+                //           playerProgress.highestScores.firstWhere((e) => e.level == level.number).goal)
+                //       : const Icon(Icons.lock),
+                // )
+
+                ),
           ],
         ),
         rectangularMenuArea: Padding(

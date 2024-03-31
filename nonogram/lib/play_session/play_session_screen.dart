@@ -115,20 +115,24 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
   Future<void> _playerWon() async {
     _log.info('Level ${widget.level.number} won');
 
-    final score = Score(widget.level.number, widget.level.difficulty, DateTime.now().difference(_startOfPlay),
-        widget.level.goal, widget.level.solution!);
+    final score = Score(
+      widget.level.number,
+      widget.level.puzzleName,
+      widget.level.difficulty,
+      DateTime.now().difference(_startOfPlay),
+      widget.level.goal,
+      widget.level.solution!,
+    );
 
     if (widget.level.score == null) {
       widget.level.score = score;
     } else if (widget.level.score != null && score.duration < widget.level.score!.duration) {
-      print('Updated highscore');
       widget.level.score = score;
     }
 
     final playerProgress = context.read<PlayerProgress>();
     playerProgress.setLevelReached(widget.level.number, widget.level.score!);
 
-    // Let the player see the game just after winning for a bit.
     await Future<void>.delayed(_preCelebrationDuration);
     if (!mounted) return;
 

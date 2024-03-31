@@ -62,29 +62,34 @@ class _GameWidgetState extends State<GameWidget> {
   Widget _buildRowIndications(List<List<int>> rows, double cellSize) {
     final maxIndicationWidth = _calculateMaxRowIndicationWidth(rows);
 
-    return Padding(
-      padding: const EdgeInsets.only(right: 4),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: rows.map((row) {
-          final indicationText = row.join(' ');
-          return SizedBox(
-            height: cellSize,
-            width: maxIndicationWidth,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    indicationText,
-                    style: TextStyle(fontSize: 12, color: palette.ink),
+    return GestureDetector(
+      onTap:() {
+        levelState.setMarker(levelState.marker == 'X' ? '.' : 'X');
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(right: 4),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: rows.map((row) {
+            final indicationText = row.join('  ');
+            return SizedBox(
+              height: cellSize,
+              width: maxIndicationWidth,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      indicationText,
+                      style: TextStyle(fontSize: 12, color: palette.ink),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -105,17 +110,22 @@ class _GameWidgetState extends State<GameWidget> {
   }
 
   Widget _buildColumnIndications(List<List<int>> cols, double cellSize) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: cols.map((col) {
-        return SizedBox(
-          width: cellSize,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: col.map((val) => Text(val.toString())).toList(),
-          ),
-        );
-      }).toList(),
+    return GestureDetector(
+      onTap: () {
+        levelState.setMarker(levelState.marker == 'X' ? '.' : 'X');
+      },
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: cols.map((col) {
+          return SizedBox(
+            width: cellSize,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: col.map((val) => Text(val.toString())).toList(),
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 
