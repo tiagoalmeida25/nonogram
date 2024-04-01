@@ -1,7 +1,3 @@
-// Copyright 2022, the Flutter project authors. Please see the AUTHORS file
-// for details. All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
-
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -106,7 +102,7 @@ class LevelSelectionScreen extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'in ${playerProgress.highestScores.firstWhere((e) => e.level == level.number).formattedTime}',
+                            'in ${playerProgress.highestScores.firstWhere((e) => e.name == level.puzzleName).formattedTime}',
                             style: TextStyle(color: palette.ink.withOpacity(0.5)),
                           )
                         ],

@@ -123,7 +123,7 @@ class _GameWidgetState extends State<GameWidget> {
             children: col
                 .map((val) => FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: Text(val.toString(), style: TextStyle(fontSize: cellSize)),
+                      child: Text(val.toString(), style: TextStyle(fontSize: 12)),
                     ))
                 .toList(),
           ),
