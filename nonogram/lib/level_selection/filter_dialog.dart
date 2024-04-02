@@ -25,6 +25,8 @@ class _CustomFilterDialogState extends State<CustomFilterDialog> {
   int maxHeight = 35;
   int minWidth = 5;
   int maxWidth = 35;
+  double minDifficulty = 1;
+  double maxDifficulty = 5;
 
   @override
   Widget build(BuildContext context) {
@@ -104,6 +106,45 @@ class _CustomFilterDialogState extends State<CustomFilterDialog> {
                       });
                     },
                   ),
+                  Text(
+                    'Difficulty:',
+                    style: const TextStyle(
+                      fontFamily: 'Permanent Marker',
+                      fontSize: 16,
+                    ),
+                  ),
+                  RangeSlider(
+                    values: RangeValues(minDifficulty, maxDifficulty),
+                    min: 1,
+                    max: 5,
+                    divisions: 4,
+                    labels: RangeLabels(
+                      minDifficulty == 1
+                          ? 'Super Easy'
+                          : minDifficulty == 2
+                              ? 'Easy'
+                              : minDifficulty == 3
+                                  ? 'Medium'
+                                  : minDifficulty == 4
+                                      ? 'Hard'
+                                      : 'Super Hard',
+                      maxDifficulty == 1
+                          ? 'Super Easy'
+                          : maxDifficulty == 2
+                              ? 'Easy'
+                              : maxDifficulty == 3
+                                  ? 'Medium'
+                                  : maxDifficulty == 4
+                                      ? 'Hard'
+                                      : 'Super Hard',
+                    ),
+                    onChanged: (RangeValues values) {
+                      setState(() {
+                        minDifficulty = values.start;
+                        maxDifficulty = values.end;
+                      });
+                    },
+                  ),
                 ]),
           ),
           Row(
@@ -117,6 +158,8 @@ class _CustomFilterDialogState extends State<CustomFilterDialog> {
                     maxHeight = 35;
                     minWidth = 5;
                     maxWidth = 35;
+                    minDifficulty = 1;
+                    maxDifficulty = 5;
                   });
 
                   widget.levelProvider.clearFilter();
@@ -127,7 +170,8 @@ class _CustomFilterDialogState extends State<CustomFilterDialog> {
               ),
               TextButton(
                 onPressed: () {
-                  widget.levelProvider.setFilter(_controller.text, minHeight, maxHeight, minWidth, maxWidth);
+                  widget.levelProvider.setFilter(_controller.text, minHeight, maxHeight, minWidth, maxWidth,
+                      minDifficulty, maxDifficulty);
 
                   Navigator.pop(context);
                 },

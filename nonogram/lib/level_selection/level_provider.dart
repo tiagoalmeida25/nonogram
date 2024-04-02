@@ -21,7 +21,8 @@ class LevelProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void setFilter(String filter, int minHeight, int maxHeight, int minWidth, int maxWidth) {
+  void setFilter(String filter, int minHeight, int maxHeight, int minWidth, int maxWidth,
+      double minDifficulty, double maxDifficulty) {
     List<GameLevel> filteredLevels = _allLevels.where((level) {
       if (filter.isNotEmpty && !level.puzzleName.toLowerCase().contains(filter.toLowerCase())) {
         return false;
@@ -32,6 +33,19 @@ class LevelProvider with ChangeNotifier {
       if (minWidth > level.width || maxWidth < level.width) {
         return false;
       }
+      if (minDifficulty != 1 || maxDifficulty != 5) {
+        if (level.difficulty == null) {
+          return false;
+        }
+        if (minDifficulty ==  maxDifficulty && level.difficulty == minDifficulty) {
+          return true;
+        }
+        if (minDifficulty > (level.difficulty ?? double.infinity) ||
+            maxDifficulty < (level.difficulty ?? double.negativeInfinity)) {
+          return false;
+        }
+      }
+
       return true;
     }).toList();
 
