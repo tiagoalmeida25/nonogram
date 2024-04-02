@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:nonogram/level_selection/levels.dart'; // Import your GameLevel class
@@ -22,7 +24,22 @@ class LevelProvider with ChangeNotifier {
       final value = await FirebaseFirestore.instance.collection('levels').get();
 
       for (var element in value.docs) {
-        final level = GameLevel.fromFirestore(element, loadedLevels.length + 1);
+        final level = GameLevel(
+          number: loadedLevels.length + 1,
+          puzzleName: element['name'] as String,
+          goal: (jsonDecode(element['goal'] as String) as List).map((e) => (e as List).cast<int>()).toList(),
+          columnIndications: (jsonDecode(element['columnIndications'] as String) as List)
+              .map((e) => (e as List).cast<int>())
+              .toList(),
+          rowIndications: (jsonDecode(element['rowIndications'] as String) as List)
+              .map((e) => (e as List).cast<int>())
+              .toList(),
+          width: element['width'] as int,
+          height: element['height'] as int,
+          difficulty: element.data().containsKey('difficulty') ? element['difficulty'] as double : null,
+          ratings: element.data().containsKey('ratings') ? (element['ratings'] as List).map((e) => e as double).toList() : null,
+        );
+
         if (!loadedLevels.any((loadedLevel) =>
             (loadedLevel.puzzleName == level.puzzleName) &&
             (loadedLevel.width == level.width) &&

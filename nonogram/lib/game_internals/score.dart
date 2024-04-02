@@ -1,38 +1,14 @@
 class Score {
-  final int score;
   final String name;
   final List<List<int>> goal;
-  final List<List<int>> solution;
-
   final int level;
   final Duration duration;
+  final double? difficulty;
+  final List<double>? ratings;
 
-  factory Score(
-    int level,
-    String name,
-    String difficulty,
-    Duration duration,
-    List<List<int>> goal,
-    List<List<int>> solution,
-  ) {
-    var score = 0;
-    switch (difficulty) {
-      case 'easy':
-        score += 100;
-        break;
-      case 'medium':
-        score += 500;
-        break;
-      case 'hard':
-        score += 1000;
-        break;
-      default:
-        throw ArgumentError('Unknown difficulty: $difficulty');
-    }
-    return Score._(score, name, duration, level, goal, solution);
-  }
+  const Score._(this.name, this.duration, this.level, this.goal, this.difficulty, this.ratings);
 
-  const Score._(this.score, this.name, this.duration, this.level, this.goal, this.solution);
+  Score.fromLevel(this.level, this.name, this.duration, this.goal, this.difficulty, this.ratings);
 
   String get formattedTime {
     final buf = StringBuffer();
@@ -60,9 +36,9 @@ class Score {
 
   Map<String, dynamic> toJson() {
     return {
-      'score': score,
       'goal': goal,
-      'solution': solution,
+      'difficulty': difficulty,
+      'ratings': ratings,
       'level': level,
       'name': name,
       'duration': duration.toString(),
@@ -71,12 +47,12 @@ class Score {
 
   factory Score.fromJson(dynamic json) {
     return Score._(
-      json['score'] as int,
       json['name'] != null ? json['name'] as String : '',
       Score.parseDuration(json['duration'] as String),
       json['level'] as int,
       (json['goal'] as List).map((e) => (e as List).map((i) => i as int).toList()).toList(),
-      (json['solution'] as List).map((e) => (e as List).map((i) => i as int).toList()).toList(),
+      json['difficulty'] != null ? json['difficulty'] as double : null,
+      json['ratings'] != null ? (json['ratings'] as List).map((e) => e as double).toList() : null,
     );
   }
 }

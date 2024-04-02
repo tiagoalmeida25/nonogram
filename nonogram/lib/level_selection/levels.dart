@@ -164,7 +164,8 @@ class GameLevel {
   final List<List<int>> goal;
   final int width;
   final int height;
-  final String difficulty;
+  double? difficulty;
+  List<double>? ratings;
   final List<List<int>> columnIndications;
   final List<List<int>> rowIndications;
 
@@ -179,7 +180,8 @@ class GameLevel {
     required this.rowIndications,
     required this.width,
     required this.height,
-    this.difficulty = 'easy',
+    this.difficulty,
+    this.ratings,
     this.solution,
     this.score,
   });
@@ -201,6 +203,8 @@ class GameLevel {
           .toList(),
       width: element['width'] as int,
       height: element['height'] as int,
+      difficulty: element['difficulty'] as double?,
+      ratings: (element['ratings'] as List?)?.map((e) => e as double).toList(),
     );
 
     return level;

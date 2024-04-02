@@ -66,7 +66,7 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
               MyButton(
                 onPressed: () async {
                   final docSnapshot =
-                      await FirebaseFirestore.instance.collection('levels').doc(controller.text).get();
+                      await FirebaseFirestore.instance.collection('levels').doc(controller.text.trim()).get();
                   if (docSnapshot.exists) {
                     final querySnapshot = await FirebaseFirestore.instance
                         .collection('levels')
@@ -82,12 +82,12 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
 
                     final newName = '${controller.text} ${maxVersion + 1}';
 
-                    FirebaseFirestore.instance.collection('levels').doc(newName).set({
+                    FirebaseFirestore.instance.collection('levels').doc(newName.trim()).set({
                       'rowIndications': jsonEncode(rowIndications),
                       'columnIndications': jsonEncode(columnIndications),
                       'goal': jsonEncode(
                           levelState.progress.map((e) => e.map((e) => e == 'X' ? 1 : 0).toList()).toList()),
-                      'name': controller.text,
+                      'name': controller.text.trim(),
                       'height': widget.height,
                       'width': widget.width,
                     });
@@ -190,8 +190,6 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
 
     final solver = no.LogicalSolver.empty(nonogram).solve();
     final solution = solver.toList();
-
-    print('Solution: ${solution.length}');
 
     return solution.isNotEmpty;
   }

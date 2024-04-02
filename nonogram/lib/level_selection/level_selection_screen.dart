@@ -84,6 +84,17 @@ class LevelSelectionScreen extends StatelessWidget {
               Score? score = playerProgress.highestScores
                   .cast<Score?>()
                   .firstWhere((e) => e!.name == level.puzzleName, orElse: () => null);
+              Color difficultyColor = level.difficulty == null
+                  ? Colors.white.withOpacity(0.5)
+                  : level.difficulty! <= 1
+                      ? Colors.green.withOpacity(0.5)
+                      : level.difficulty! <= 2
+                          ? Colors.lightGreen.withOpacity(0.5)
+                          : level.difficulty! <= 3
+                              ? Colors.amber.withOpacity(0.5)
+                              : level.difficulty! <= 4
+                                  ? Colors.orange.withOpacity(0.5)
+                                  : Colors.red.withOpacity(0.5);
 
               return score != null
                   ? ListTile(
@@ -93,7 +104,10 @@ class LevelSelectionScreen extends StatelessWidget {
 
                         GoRouter.of(context).go('/play/session/${level.number}');
                       },
-                      leading: Text(level.number.toString()),
+                      leading: CircleAvatar(
+                          maxRadius: 12,
+                          backgroundColor: difficultyColor,
+                          child: FittedBox(child: Text(level.number.toString()))),
                       title: Row(
                         children: [
                           Text(
@@ -102,13 +116,12 @@ class LevelSelectionScreen extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'in ${playerProgress.highestScores.firstWhere((e) => e.name == level.puzzleName).formattedTime}',
+                            'in ${score.formattedTime}',
                             style: TextStyle(color: palette.ink.withOpacity(0.5)),
                           )
                         ],
                       ),
-                      trailing: levelSolution(
-                          playerProgress.highestScores.firstWhere((e) => e.name == level.puzzleName).goal))
+                      trailing: levelSolution(score.goal))
                   : ListTile(
                       onTap: () {
                         final audioController = context.read<AudioController>();
@@ -116,7 +129,10 @@ class LevelSelectionScreen extends StatelessWidget {
 
                         GoRouter.of(context).go('/play/session/${level.number}');
                       },
-                      leading: Text(level.number.toString()),
+                      leading: CircleAvatar(
+                          maxRadius: 12,
+                          backgroundColor: difficultyColor,
+                          child: FittedBox(child: Text(level.number.toString()))),
                       title: Row(
                         children: [
                           Text(level.puzzleName, style: TextStyle(color: palette.darkPen)),

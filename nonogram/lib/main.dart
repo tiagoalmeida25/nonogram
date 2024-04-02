@@ -76,6 +76,7 @@ class MyApp extends StatelessWidget {
           final palette = context.watch<Palette>();
 
           return MaterialApp.router(
+            debugShowCheckedModeBanner: false,
             title: 'Nonogram',
             theme: ThemeData.from(
               colorScheme: ColorScheme.fromSeed(seedColor: palette.darkPen, surface: palette.backgroundMain),

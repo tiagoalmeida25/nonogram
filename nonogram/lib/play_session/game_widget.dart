@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -23,6 +24,8 @@ class _GameWidgetState extends State<GameWidget> {
   bool loaded = false;
   final GlobalKey gridKey = GlobalKey();
   bool isDragging = false;
+  Timer? timer;
+  Duration timePassed = Duration.zero;
 
   @override
   void initState() {
@@ -38,7 +41,18 @@ class _GameWidgetState extends State<GameWidget> {
       setState(() {
         loaded = true;
       });
+      timer = Timer.periodic(Duration(seconds: 1), (timer) {
+        setState(() {
+          timePassed += Duration(seconds: 1);
+        });
+      });
     });
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
 
   double calculateCellSize() {
@@ -242,6 +256,20 @@ class _GameWidgetState extends State<GameWidget> {
     );
   }
 
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+  }
+
+  Widget _buildTimerDisplay() {
+    return Text(
+      _formatDuration(timePassed),
+      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Permanent Marker'),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cellSize = calculateCellSize();
@@ -254,6 +282,8 @@ class _GameWidgetState extends State<GameWidget> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         appBar(),
+        const SizedBox(height: 16),
+        _buildTimerDisplay(),
         Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

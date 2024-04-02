@@ -8,6 +8,7 @@ import 'package:nonogram/create_level/create_level.dart';
 import 'package:nonogram/create_level/create_level_grid.dart';
 import 'package:nonogram/game_internals/level_state.dart';
 import 'package:nonogram/level_selection/level_provider.dart';
+import 'package:nonogram/level_selection/levels.dart';
 import 'package:provider/provider.dart';
 
 import 'game_internals/score.dart';
@@ -76,12 +77,14 @@ final router = GoRouter(
                 pageBuilder: (context, state) {
                   final map = state.extra! as Map<String, dynamic>;
                   final score = map['score'] as Score;
+                  final level = map['level'] as GameLevel;
 
                   return buildMyTransition<void>(
                     key: ValueKey('won'),
                     color: context.watch<Palette>().backgroundPlaySession,
                     child: WinGameScreen(
                       score: score,
+                      level: level,
                       key: const Key('win game'),
                     ),
                   );

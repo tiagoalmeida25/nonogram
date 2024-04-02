@@ -39,8 +39,18 @@ class LocalStoragePlayerProgressPersistence extends PlayerProgressPersistence {
   Future<void> saveScore(Score score) async {
     final prefs = await instanceFuture;
     final scores = prefs.getStringList('scores') ?? [];
-    scores.add(jsonEncode(score.toJson()));
-    await prefs.setStringList('scores', scores);
+
+    final existingScores = scores.map((e) => Score.fromJson(jsonDecode(e))).toList();
+    final existingScore = existingScores.firstWhere((s) => s.name == score.name);
+
+    if (score.duration < existingScore.duration) {
+      existingScores.remove(existingScore);
+    } else if (score.duration >= existingScore.duration) {
+      return;
+    }
+
+    existingScores.add(score);
+    await prefs.setStringList('scores', existingScores.map((s) => jsonEncode(s.toJson())).toList());
   }
 
   @override

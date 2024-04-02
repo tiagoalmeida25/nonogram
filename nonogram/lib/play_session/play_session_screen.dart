@@ -115,21 +115,16 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
   Future<void> _playerWon() async {
     _log.info('Level ${widget.level.number} won');
 
-    final score = Score(
+    final score = Score.fromLevel(
       widget.level.number,
       widget.level.puzzleName,
-      widget.level.difficulty,
       DateTime.now().difference(_startOfPlay),
       widget.level.goal,
-      widget.level.solution!,
+      widget.level.difficulty,
+      widget.level.ratings,
     );
 
-    if (widget.level.score == null) {
-      widget.level.score = score;
-    } else if (widget.level.score != null && score.duration < widget.level.score!.duration) {
-      widget.level.score = score;
-    }
-
+    widget.level.score = score;
     final playerProgress = context.read<PlayerProgress>();
     playerProgress.setLevelReached(widget.level.number, widget.level.score!);
 
@@ -147,6 +142,6 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
     await Future<void>.delayed(_celebrationDuration);
     if (!mounted) return;
 
-    GoRouter.of(context).go('/play/won', extra: {'score': score});
+    GoRouter.of(context).go('/play/won', extra: {'score': score, 'level': widget.level});
   }
 }
