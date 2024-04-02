@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nonogram/game_internals/level_state.dart';
+import 'package:nonogram/settings/settings.dart';
 import 'package:nonogram_dart/nonogram_dart.dart' as no;
 import 'package:provider/provider.dart';
 
@@ -29,6 +30,8 @@ class CreateLevelGridScreen extends StatefulWidget {
 }
 
 class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
+  late SettingsController settings = SettingsController();
+
   final Palette palette = Palette();
   late LevelState levelState;
   final gridKey = GlobalKey();
@@ -40,6 +43,7 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
   void initState() {
     super.initState();
     levelState = context.read<LevelState>();
+    settings = context.read<SettingsController>();
 
     Future.microtask(() {
       setState(() {
@@ -302,6 +306,7 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
             onPanUpdate: handleDragUpdate,
             onPanEnd: handleDragEnd,
             updateIndicators: updateIndicators,
+            color: settings.colorChosen.value,
           ),
         ),
       );
@@ -335,8 +340,6 @@ class _CreateLevelGridScreenState extends State<CreateLevelGridScreen> {
       backgroundColor: palette.backgroundCreateLevel,
       body: ResponsiveScreen(
         squarishMainArea: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Create level',
@@ -415,6 +418,7 @@ class Cell extends StatefulWidget {
   final Function(DragUpdateDetails) onPanUpdate;
   final Function(DragEndDetails) onPanEnd;
   final Function() updateIndicators;
+  final Color color;
 
   const Cell({
     super.key,
@@ -428,6 +432,7 @@ class Cell extends StatefulWidget {
     required this.onPanUpdate,
     required this.onPanEnd,
     required this.updateIndicators,
+    required this.color,
   });
 
   @override
@@ -441,7 +446,7 @@ class CellState extends State<Cell> {
     bool isBottomEdge = (widget.row + 1) % 5 == 0 && widget.row != widget.height - 1;
 
     BoxDecoration decoration = BoxDecoration(
-      color: widget.levelState.progress[widget.row][widget.col] == 'X' ? Colors.black : Colors.white,
+      color: widget.levelState.progress[widget.row][widget.col] == 'X' ? widget.color : Colors.white,
       border: Border(
         top: BorderSide(color: Colors.black, width: 0.1),
         left: BorderSide(color: Colors.black, width: 0.1),

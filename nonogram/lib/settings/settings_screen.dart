@@ -3,7 +3,9 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nonogram/settings/custom_color_dialog.dart';
 import 'package:provider/provider.dart';
 
 import '../player_progress/player_progress.dart';
@@ -39,9 +41,8 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
             _gap,
-            const _NameChangeLine(
-              'Name',
-            ),
+            const _NameChangeLine('Name'),
+            const _ColorChangeLine('Color'),
             ValueListenableBuilder<bool>(
               valueListenable: settings.soundsOn,
               builder: (context, soundsOn, child) => _SettingsLine(
@@ -66,8 +67,7 @@ class SettingsScreen extends StatelessWidget {
 
                 final messenger = ScaffoldMessenger.of(context);
                 messenger.showSnackBar(
-                  const SnackBar(
-                      content: Text('Player progress has been reset.')),
+                  const SnackBar(content: Text('Player progress has been reset.')),
                 );
               },
             ),
@@ -118,6 +118,42 @@ class _NameChangeLine extends StatelessWidget {
                 ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ColorChangeLine extends StatelessWidget {
+  final String title;
+
+  const _ColorChangeLine(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = context.watch<SettingsController>();
+
+    return InkResponse(
+      highlightShape: BoxShape.rectangle,
+      onTap: () => showCustomColorDialog(context),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(title,
+                style: const TextStyle(
+                  fontFamily: 'Permanent Marker',
+                  fontSize: 30,
+                )),
+            const Spacer(),
+            ValueListenableBuilder(
+                valueListenable: settings.colorChosen,
+                builder: (context, name, child) => CircleAvatar(
+                      backgroundColor: settings.colorChosen.value,
+                      radius: 12,
+                    )),
           ],
         ),
       ),

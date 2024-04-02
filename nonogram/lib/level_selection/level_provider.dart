@@ -6,6 +6,7 @@ import 'package:nonogram/level_selection/levels.dart'; // Import your GameLevel 
 
 class LevelProvider with ChangeNotifier {
   List<GameLevel> _levels = [];
+  List<GameLevel> _allLevels = [];
   bool _isLoading = true;
 
   List<GameLevel> get levels => _levels;
@@ -13,6 +14,30 @@ class LevelProvider with ChangeNotifier {
 
   LevelProvider() {
     loadLevels();
+  }
+
+  void clearFilter() {
+    _levels = _allLevels;
+    notifyListeners();
+  }
+
+  void setFilter(String filter, int minHeight, int maxHeight, int minWidth, int maxWidth) {
+    List<GameLevel> filteredLevels = _allLevels.where((level) {
+      if (filter.isNotEmpty && !level.puzzleName.toLowerCase().contains(filter.toLowerCase())) {
+        return false;
+      }
+      if (minHeight > level.height || maxHeight < level.height) {
+        return false;
+      }
+      if (minWidth > level.width || maxWidth < level.width) {
+        return false;
+      }
+      return true;
+    }).toList();
+
+    _levels = filteredLevels;
+
+    notifyListeners();
   }
 
   Future<void> loadLevels() async {
@@ -37,7 +62,9 @@ class LevelProvider with ChangeNotifier {
           width: element['width'] as int,
           height: element['height'] as int,
           difficulty: element.data().containsKey('difficulty') ? element['difficulty'] as double : null,
-          ratings: element.data().containsKey('ratings') ? (element['ratings'] as List).map((e) => e as double).toList() : null,
+          ratings: element.data().containsKey('ratings')
+              ? (element['ratings'] as List).map((e) => e as double).toList()
+              : null,
         );
 
         if (!loadedLevels.any((loadedLevel) =>
@@ -60,7 +87,8 @@ class LevelProvider with ChangeNotifier {
         loadedLevels[i].number = i + 1;
       }
 
-      _levels = loadedLevels;
+      _allLevels = loadedLevels;
+      _levels = _allLevels;
     } catch (e) {
       if (kDebugMode) {
         print('Error loading levels: $e');

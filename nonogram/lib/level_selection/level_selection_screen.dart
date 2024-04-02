@@ -3,7 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nonogram/game_internals/score.dart';
+import 'package:nonogram/level_selection/filter_dialog.dart';
 import 'package:nonogram/level_selection/level_provider.dart';
+import 'package:nonogram/settings/settings.dart';
 import 'package:provider/provider.dart';
 
 import '../audio/audio_controller.dart';
@@ -16,7 +18,7 @@ import '../style/responsive_screen.dart';
 class LevelSelectionScreen extends StatelessWidget {
   const LevelSelectionScreen({super.key});
 
-  Widget levelSolution(List<List<int>> grid) {
+  Widget levelSolution(List<List<int>> grid, SettingsController settings) {
     final int maxDimension = max(grid.length, grid[0].length);
     final List<List<int>> newGrid = List.generate(maxDimension, (_) => List.generate(maxDimension, (_) => 0));
 
@@ -43,10 +45,40 @@ class LevelSelectionScreen extends StatelessWidget {
           final cell = newGrid[row][col];
           return Container(
             decoration: BoxDecoration(
-              color: cell == 1 ? Colors.black : Colors.white,
+              color: cell == 1 ? settings.colorChosen.value : Colors.white,
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget searchAndFilterArea(LevelProvider levelProvider, Palette palette, BuildContext context) {
+    return GestureDetector(
+      onTap: () => showCustomFilterDialog(context, levelProvider),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+                width: 100,
+                height: 35,
+                decoration: BoxDecoration(
+                  color: palette.buttonColor,
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.filter_alt, color: palette.ink),
+                      onPressed: () {},
+                    ),
+                    Text('Filter', style: TextStyle(color: palette.ink, fontWeight: FontWeight.bold)),
+                  ],
+                ))
+          ],
+        ),
       ),
     );
   }
@@ -56,6 +88,7 @@ class LevelSelectionScreen extends StatelessWidget {
     final palette = context.watch<Palette>();
     final playerProgress = context.watch<PlayerProgress>();
     final levelProvider = context.watch<LevelProvider>();
+    final settings = context.watch<SettingsController>();
 
     if (levelProvider.isLoading) {
       return const Center(
@@ -77,7 +110,7 @@ class LevelSelectionScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 50),
+            searchAndFilterArea(levelProvider, palette, context),
             Expanded(
                 child: ListView(
                     children: levelProvider.levels.map((level) {
@@ -98,6 +131,7 @@ class LevelSelectionScreen extends StatelessWidget {
 
               return score != null
                   ? ListTile(
+                      contentPadding: EdgeInsets.zero,
                       onTap: () {
                         final audioController = context.read<AudioController>();
                         audioController.playSfx(SfxType.buttonTap);
@@ -121,8 +155,9 @@ class LevelSelectionScreen extends StatelessWidget {
                           )
                         ],
                       ),
-                      trailing: levelSolution(score.goal))
+                      trailing: levelSolution(score.goal, settings))
                   : ListTile(
+                      contentPadding: EdgeInsets.zero,
                       onTap: () {
                         final audioController = context.read<AudioController>();
                         audioController.playSfx(SfxType.buttonTap);
@@ -135,7 +170,7 @@ class LevelSelectionScreen extends StatelessWidget {
                           child: FittedBox(child: Text(level.number.toString()))),
                       title: Row(
                         children: [
-                          Text(level.puzzleName, style: TextStyle(color: palette.darkPen)),
+                          Text(level.puzzleName, style: TextStyle(color: palette.pen)),
                         ],
                       ),
                       trailing: const Icon(Icons.lock),

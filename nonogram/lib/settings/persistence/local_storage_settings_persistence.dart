@@ -2,6 +2,8 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'dart:ui';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'settings_persistence.dart';
@@ -58,5 +60,21 @@ class LocalStorageSettingsPersistence extends SettingsPersistence {
   Future<void> saveSoundsOn(bool value) async {
     final prefs = await instanceFuture;
     await prefs.setBool('soundsOn', value);
+  }
+
+  @override
+  Future<Color> getColorChosen({required Color defaultValue}) async {
+    final prefs = await instanceFuture;
+    final color = prefs.getInt('colorChosen');
+    if (color == null) {
+      return defaultValue;
+    }
+    return Color(color);
+  }
+
+  @override
+  Future<void> saveColorChosen(Color value) async {
+    final prefs = await instanceFuture;
+    await prefs.setInt('colorChosen', value.value);
   }
 }

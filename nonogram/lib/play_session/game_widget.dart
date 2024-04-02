@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_toggle_tab/flutter_toggle_tab.dart';
+import 'package:nonogram/settings/settings.dart';
 import 'package:nonogram/style/palette.dart';
 import 'package:provider/provider.dart';
 
@@ -21,6 +23,7 @@ class _GameWidgetState extends State<GameWidget> {
   late LevelState levelState;
   late GameLevel level;
   late Palette palette;
+  late SettingsController settings;
   bool loaded = false;
   final GlobalKey gridKey = GlobalKey();
   bool isDragging = false;
@@ -33,6 +36,7 @@ class _GameWidgetState extends State<GameWidget> {
     level = context.read<GameLevel>();
     levelState = context.read<LevelState>();
     palette = context.read<Palette>();
+    settings = context.read<SettingsController>();
 
     Future.microtask(() {
       levelState.initProgress(level.height, level.width);
@@ -197,7 +201,7 @@ class _GameWidgetState extends State<GameWidget> {
       bool isBottomEdge = (row + 1) % 5 == 0 && row != level.height - 1;
 
       BoxDecoration decoration = BoxDecoration(
-        color: marker == 'X' ? Colors.black : Colors.white,
+        color: marker == 'X' ? settings.colorChosen.value : Colors.white,
         border: Border(
           top: BorderSide(color: Colors.black, width: 0.1),
           left: BorderSide(color: Colors.black, width: 0.1),
@@ -311,31 +315,41 @@ class _GameWidgetState extends State<GameWidget> {
           ),
         ),
         // Spacer(),
-
-        Consumer<LevelState>(
-          builder: (context, value, child) => Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        SizedBox(
+          height: 50,
+          width: double.infinity,
+          child: Stack(
             children: [
-              IconButton(
-                onPressed: () {
-                  levelState.undo();
-                },
-                icon: Icon(Icons.undo),
+              Center(
+                child: FlutterToggleTab(
+                  width: 30,
+                  borderRadius: 30,
+                  height: 50,
+                  marginSelected: EdgeInsets.all(3),
+                  selectedIndex: levelState.marker == 'X' ? 0 : 1,
+                  selectedBackgroundColors: [palette.backgroundPlaySession],
+                  unSelectedBackgroundColors: const [Colors.white],
+                  selectedTextStyle: TextStyle(color: Colors.white),
+                  unSelectedTextStyle: TextStyle(color: palette.backgroundPlaySession),
+                  labels: const ['', ''],
+                  icons: const [Icons.square, Icons.close],
+                  selectedLabelIndex: (index) {
+                    setState(() {
+                      levelState.setMarker(index == 0 ? 'X' : '.');
+                    });
+                  },
+                  isScroll: false,
+                ),
               ),
-              SegmentedButton(
-                segments: const [
-                  ButtonSegment(value: 'X', icon: Icon(Icons.square)),
-                  ButtonSegment(value: '.', icon: Icon(Icons.close)),
-                ],
-                selected: {value.marker},
-                onSelectionChanged: (Set<String> values) {
-                  if (values.isNotEmpty) {
-                    levelState.setMarker(values.first);
-                  }
-                },
-                showSelectedIcon: false,
+              Positioned(
+                left: 32,
+                child: IconButton(
+                  onPressed: () {
+                    levelState.undo();
+                  },
+                  icon: Icon(Icons.undo, color: palette.ink),
+                ),
               ),
-              Icon(null),
             ],
           ),
         ),

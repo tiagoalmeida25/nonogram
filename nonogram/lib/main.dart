@@ -79,11 +79,14 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             title: 'Nonogram',
             theme: ThemeData.from(
-              colorScheme: ColorScheme.fromSeed(seedColor: palette.darkPen, surface: palette.backgroundMain),
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: palette.backgroundPlaySession,
+                background: palette.backgroundMain,
+                primary: palette.pen,
+              ),
               textTheme: TextTheme(bodyMedium: TextStyle(color: palette.ink)),
               useMaterial3: true,
             ).copyWith(
-              // Make buttons more fun.
               filledButtonTheme: FilledButtonThemeData(
                 style: FilledButton.styleFrom(
                   textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),

@@ -51,6 +51,8 @@ class LevelState extends ChangeNotifier {
         for (int i = 0; i < _progress[rowIndex].length; i++) {
           if (_progress[rowIndex][i] != 'X') {
             _progress[rowIndex][i] = '.';
+            final index = rowIndex * _progress[0].length + i;
+            _moves.add({'order': _moves.length, 'marker': marker, 'index': index});
           }
         }
       }
@@ -68,6 +70,8 @@ class LevelState extends ChangeNotifier {
         for (int i = 0; i < _progress.length; i++) {
           if (_progress[i][colIndex] != 'X') {
             _progress[i][colIndex] = '.';
+            final index = colIndex * _progress[0].length + i;
+            _moves.add({'order': _moves.length, 'marker': marker, 'index': index});
           }
         }
       }
@@ -99,6 +103,7 @@ class LevelState extends ChangeNotifier {
         }
       }
     }
+
     return line.where((element) => element > 0).toList();
   }
 
@@ -115,35 +120,6 @@ class LevelState extends ChangeNotifier {
     }
 
     updateIndicators();
-
-    notifyListeners();
-  }
-
-  void setProgressForDrag(int startIndex, int endIndex) {
-    int startRow = startIndex ~/ _progress[0].length;
-    int startCol = startIndex % _progress[0].length;
-
-    int endRow = endIndex ~/ _progress[0].length;
-    int endCol = endIndex % _progress[0].length;
-
-    if (_progress[startRow][startCol] == marker) {
-      for (int i = startRow; i <= endRow; i++) {
-        for (int j = startCol; j <= endCol; j++) {
-          final int index = i * _progress[0].length + j;
-          _progress[i][j] = '';
-          _moves.add({'order': _moves.length, 'marker': marker, 'index': index});
-        }
-      }
-    } else {
-      for (int i = startRow; i <= endRow; i++) {
-        for (int j = startCol; j <= endCol; j++) {
-          final int index = i * _progress[0].length + j;
-
-          _progress[i][j] = marker;
-          _moves.add({'order': _moves.length, 'marker': marker, 'index': index});
-        }
-      }
-    }
 
     notifyListeners();
   }

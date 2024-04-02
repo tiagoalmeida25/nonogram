@@ -41,12 +41,16 @@ class LocalStoragePlayerProgressPersistence extends PlayerProgressPersistence {
     final scores = prefs.getStringList('scores') ?? [];
 
     final existingScores = scores.map((e) => Score.fromJson(jsonDecode(e))).toList();
-    final existingScore = existingScores.firstWhere((s) => s.name == score.name);
+    try {
+      final existingScore = existingScores.firstWhere((s) => s.name == score.name);
 
-    if (score.duration < existingScore.duration) {
-      existingScores.remove(existingScore);
-    } else if (score.duration >= existingScore.duration) {
-      return;
+      if (score.duration < existingScore.duration) {
+        existingScores.remove(existingScore);
+      } else if (score.duration >= existingScore.duration) {
+        return;
+      }
+    } catch (e) {
+      existingScores.add(score);
     }
 
     existingScores.add(score);

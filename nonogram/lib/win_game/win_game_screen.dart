@@ -8,6 +8,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nonogram/level_selection/level_provider.dart';
 import 'package:nonogram/level_selection/levels.dart';
+import 'package:nonogram/settings/settings.dart';
 import 'package:provider/provider.dart';
 
 import '../game_internals/score.dart';
@@ -86,6 +87,7 @@ class _WinGameScreenState extends State<WinGameScreen> {
   @override
   Widget build(BuildContext context) {
     final palette = context.watch<Palette>();
+    final settings = context.watch<SettingsController>();
     final gap = SizedBox(height: 10);
     final cellSize = calculateCellSize(widget.score.goal, context);
 
@@ -119,7 +121,7 @@ class _WinGameScreenState extends State<WinGameScreen> {
                   final cell = widget.score.goal[row][col];
                   return Container(
                     decoration: BoxDecoration(
-                      color: cell == 1 ? Colors.black : Colors.white,
+                      color: cell == 1 ? settings.colorChosen.value : Colors.white,
                     ),
                   );
                 },

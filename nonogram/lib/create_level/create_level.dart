@@ -24,7 +24,7 @@ class _CreateLevelScreenState extends State<CreateLevelScreen> {
     final palette = context.watch<Palette>();
 
     return Scaffold(
-      backgroundColor: palette.backgroundSettings,
+      backgroundColor: palette.backgroundCreateLevel,
       body: ResponsiveScreen(
         squarishMainArea: ListView(
           children: [

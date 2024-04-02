@@ -2,6 +2,8 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'dart:ui';
+
 /// An interface of persistence stores for settings.
 ///
 /// Implementations can range from simple in-memory storage through
@@ -22,4 +24,8 @@ abstract class SettingsPersistence {
   Future<void> savePlayerName(String value);
 
   Future<void> saveSoundsOn(bool value);
+
+  Future<Color> getColorChosen({required Color defaultValue});
+
+  Future<void> saveColorChosen(Color value);
 }

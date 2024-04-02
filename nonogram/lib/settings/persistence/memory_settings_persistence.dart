@@ -2,6 +2,8 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'dart:ui';
+
 import 'settings_persistence.dart';
 
 /// An in-memory implementation of [SettingsPersistence].
@@ -38,4 +40,10 @@ class MemoryOnlySettingsPersistence implements SettingsPersistence {
 
   @override
   Future<void> saveSoundsOn(bool value) async => soundsOn = value;
+
+  @override
+  Future<Color> getColorChosen({required Color defaultValue}) async => defaultValue;
+
+  @override
+  Future<void> saveColorChosen(Color value) async {}
 }

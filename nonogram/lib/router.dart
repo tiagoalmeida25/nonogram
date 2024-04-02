@@ -97,7 +97,11 @@ final router = GoRouter(
         ),
         GoRoute(
           path: 'create_level',
-          builder: (context, state) => CreateLevelScreen(),
+          pageBuilder: (context, state) => buildMyTransition<void>(
+            key: ValueKey('create_level'),
+            color: context.watch<Palette>().backgroundCreateLevel,
+            child: CreateLevelScreen(),
+          ),
         ),
         GoRoute(
             path: 'create_level_grid/:width/:height/:name',
