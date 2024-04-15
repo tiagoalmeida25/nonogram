@@ -67,7 +67,7 @@ class _GameWidgetState extends State<GameWidget> {
     final cellSize = maxPuzzleWidth / level.width;
 
     final screenHeight = MediaQuery.of(context).size.height;
-    final maxPuzzleHeight = screenHeight - 236;
+    final maxPuzzleHeight = screenHeight - 250;
     final cellSizeHeight = maxPuzzleHeight / level.height;
 
     if (cellSizeHeight < cellSize) {
